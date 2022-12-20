@@ -1,4 +1,3 @@
-# FROM python:3.9-slim
 FROM --platform=arm64 mcr.microsoft.com/dotnet/sdk:6.0
 
 ENV FLIT_ROOT_INSTALL=1
@@ -23,4 +22,4 @@ RUN python3 -m pip install -r requirements-dev.txt && \
 
 RUN dotnet tool install -g Libplanet.Tools
 
-ENTRYPOINT ["python3", "cli.py"]
+ENTRYPOINT ["bash", "entrypoint.sh"]

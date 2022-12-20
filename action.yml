@@ -1,19 +1,22 @@
 name: Prepare Release
 description: "Prepare Release"
 inputs:
+  COMMAND:
+    description: 'command argument'
+    required: true
   network:
     description: 'Release network environment'
     default: 'internal'
-  rc-number:
+  rc_number:
     description: 'Rc number (e.g. 100310)'
-  deploy-number:
+  deploy_number:
     description: 'Deploy number (e.g. 1)'
   sign:
     description: 'Code signing'
     default: 'false'
-  launcher-commit:
+  launcher_commit:
     description: 'Specific launcher commit'
-  player-commit:
+  player_commit:
     description: 'Specific player commit'
   ENV:
     description: 'Environment'
@@ -23,6 +26,9 @@ inputs:
     required: true
   SLACK_TOKEN:
     description: 'SLACK_TOKEN'
+    required: true
+  SLACK_CHANNEL:
+    description: 'SLACK_CHANNEL'
     required: true
   KEY_PASSPHRASE:
     description: 'KEY_PASSPHRASE'
@@ -39,5 +45,3 @@ inputs:
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  args:
-    - ${{ inputs.network }}
