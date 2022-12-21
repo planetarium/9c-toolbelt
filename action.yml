@@ -44,4 +44,15 @@ inputs:
     required: true
 runs:
   using: 'docker'
+  env:
+    ENV: ${{ inputs.ENV }}
+    COMMAND: ${{ inputs.COMMAND }}
+    GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+    SLACK_TOKEN: ${{ inputs.SLACK_TOKEN }}
+    SLACK_CHANNEL: ${{ inputs.SLACK_CHANNEL }}
+    KEY_PASSPHRASE: ${{ inputs.KEY_PASSPHRASE }}
+    KEY_ADDRESS: ${{ inputs.KEY_ADDRESS }}
+    KEY_PRIVATE: ${{ inputs.KEY_PRIVATE }}
+    AWS_ACCESS_KEY_ID: ${{ inputs.AWS_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
   image: 'Dockerfile'

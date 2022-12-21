@@ -1,13 +1,13 @@
-FROM --platform=arm64 mcr.microsoft.com/dotnet/sdk:6.0
+FROM mcr.microsoft.com/dotnet/sdk:6.0
 
 ENV FLIT_ROOT_INSTALL=1
 ENV PATH="$PATH:/root/.dotnet/tools"
 
-WORKDIR /action
+WORKDIR /root
 
-RUN mkdir /root/.config
+RUN mkdir "/root/.config"
 
-COPY . /action
+COPY . /root
 
 RUN apt-get update && \
     apt-get install -y \
@@ -19,9 +19,9 @@ RUN apt-get update && \
     python3-pip && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m pip install -r requirements-dev.txt && \
+RUN python3 -m pip install -r /root/requirements-dev.txt && \
     flit install
 
 RUN dotnet tool install -g Libplanet.Tools
 
-ENTRYPOINT ["bash", "entrypoint.sh"]
+ENTRYPOINT ["bash", "/root/entrypoint.sh"]
