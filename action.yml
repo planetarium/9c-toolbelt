@@ -1,5 +1,5 @@
-name: Prepare Release
-description: "Prepare Release"
+name: Release
+description: "Release"
 inputs:
   COMMAND:
     description: 'command argument'
@@ -11,9 +11,6 @@ inputs:
     description: 'Rc number (e.g. 100310)'
   deploy_number:
     description: 'Deploy number (e.g. 1)'
-  sign:
-    description: 'Code signing'
-    default: 'false'
   launcher_commit:
     description: 'Specific launcher commit'
   player_commit:

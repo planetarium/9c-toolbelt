@@ -109,6 +109,7 @@ def prepare_release(
         except KeyError:
             pass
 
+    """
     github_client.repo = K8S_REPO
 
     if config.env == "test":
@@ -130,6 +131,7 @@ def prepare_release(
                 )
             except HTTPError as e:
                 logger.info("Failed internal tagging", err=e)
+    """
 
     if slack_channel:
         slack.send_simple_msg(
