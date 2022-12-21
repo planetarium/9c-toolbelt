@@ -5,6 +5,8 @@ ENV PATH="$PATH:/root/.dotnet/tools"
 
 WORKDIR /action
 
+RUN mkdir /root/.config
+
 COPY . /action
 
 RUN apt-get update && \

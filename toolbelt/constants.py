@@ -7,7 +7,7 @@ INTERNAL_DIR = os.path.abspath(os.path.join(ROOT_DIR, "../../9c-internal/"))
 ONBOARDING_DIR = os.path.abspath(os.path.join(ROOT_DIR, "../../9c-onboarding/"))
 MAIN_DIR = os.path.abspath(os.path.join(ROOT_DIR, "../../9c-main/"))
 
-OUTPUT_DIR = os.path.abspath(os.path.join(ROOT_DIR, "../output"))
+OUTPUT_DIR = os.path.abspath(os.path.join(ROOT_DIR, "output"))
 
 RELEASE_BASE_URL = "https://release.nine-chronicles.com"
 

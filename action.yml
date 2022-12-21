@@ -33,6 +33,9 @@ inputs:
   KEY_ADDRESS:
     description: 'KEY_ADDRESS'
     required: true
+  KEY_PRIVATE:
+    description: 'KEY_PRIVATE'
+    required: true
   AWS_ACCESS_KEY_ID:
     description: 'AWS_ACCESS_KEY_ID'
     required: true
