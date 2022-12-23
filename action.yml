@@ -47,6 +47,11 @@ runs:
   env:
     ENV: ${{ inputs.ENV }}
     COMMAND: ${{ inputs.COMMAND }}
+    NETWORK: ${{ inputs.network }}
+    RC_NUMBER: ${{ inputs.rc_number }}
+    DEPLOY_NUMBER: ${{ inputs.deploy_number }}
+    LAUNCHER_COMMIT: ${{ inputs.launcher_commit }}
+    PLAYER_COMMIT: ${{ inputs.player_commit }}
     GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
     SLACK_TOKEN: ${{ inputs.SLACK_TOKEN }}
     SLACK_CHANNEL: ${{ inputs.SLACK_CHANNEL }}
