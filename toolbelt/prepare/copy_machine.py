@@ -9,14 +9,13 @@ import structlog
 from py7zr import SevenZipFile
 
 from toolbelt.client.aws import S3File
-from toolbelt.constants import OUTPUT_DIR
+from toolbelt.constants import OUTPUT_DIR, RELEASE_BUCKET
 from toolbelt.planet.apv import Apv
 from toolbelt.types import Network
 from toolbelt.utils.url import build_download_url
 
 ARTIFACTS = ["Windows.zip", "macOS.tar.gz", "Linux.tar.gz"]
 ARTIFACT_BUCKET = "9c-artifacts"
-RELEASE_BUCKET = "9c-release.planetariumhq.com"
 
 unsigned_prefix = "Unsigned"
 logger = structlog.get_logger(__name__)

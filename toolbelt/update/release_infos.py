@@ -1,9 +1,9 @@
 import structlog
 
+from toolbelt.constants import RELEASE_BUCKET
 from toolbelt.client.aws import S3File, create_invalidation
 from toolbelt.utils.url import build_s3_url
 
-RELEASE_BUCKET = "9c-release.planetariumhq.com"
 
 download_distribution_id = "E1HPTSGY2RETN4"
 release_distribution_id = "E3SBBH63NSNYX"

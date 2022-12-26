@@ -9,8 +9,10 @@ inputs:
     default: 'internal'
   rc_number:
     description: 'Rc number (e.g. 100310)'
+    required: true
   deploy_number:
     description: 'Deploy number (e.g. 1)'
+    required: true
   launcher_commit:
     description: 'Specific launcher commit'
   player_commit:

@@ -5,7 +5,7 @@ from typing import Callable, Dict, List, Tuple
 import structlog
 
 from toolbelt.client import GithubClient
-from toolbelt.constants import INTERNAL_DIR, MAIN_DIR, ONBOARDING_DIR
+from toolbelt.constants import INTERNAL_CONFIG_PATH, MAIN_CONFIG_PATH, ONBOARDING_CONFIG_PATH
 from toolbelt.k8s import ManifestManager
 from toolbelt.planet import Apv
 from toolbelt.types import Network, RepoInfos
@@ -19,7 +19,7 @@ def update_internal_manifests(
     apv: Apv,
     branch: str,
 ):
-    manager = ManifestManager(repo_infos, INTERNAL_DIR, apv=apv.raw)
+    manager = ManifestManager(repo_infos, INTERNAL_CONFIG_PATH, apv=apv.raw)
     files = ["configmap-versions.yaml", "kustomization.yaml"]
     head = github_client.get_ref(f"heads/{branch}")
     new_branch = f"update-internal-manifests-{int(time())}"
@@ -54,7 +54,7 @@ def update_onboarding_manifests(
     apv: Apv,
     branch: str,
 ):
-    manager = ManifestManager(repo_infos, ONBOARDING_DIR, apv=apv.raw)
+    manager = ManifestManager(repo_infos, ONBOARDING_CONFIG_PATH, apv=apv.raw)
 
     configmap = ["configmap-versions.yaml"]
     kustomization = ["kustomization.yaml"]
@@ -82,7 +82,7 @@ def update_main_manifests(
     apv: Apv,
     branch: str,
 ):
-    manager = ManifestManager(repo_infos, MAIN_DIR, apv=apv.raw)
+    manager = ManifestManager(repo_infos, MAIN_CONFIG_PATH, apv=apv.raw)
     configmap = ["configmap-versions.yaml"]
     explorer = ["explorer.yaml"]
     full_state = ["full-state.yaml"]

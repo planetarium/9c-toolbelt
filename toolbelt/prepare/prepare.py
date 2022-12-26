@@ -1,17 +1,18 @@
+import os
+
 from typing import Dict, Optional
 
 import structlog
-from requests import HTTPError
 
 from toolbelt.client import GithubClient, SlackClient
 from toolbelt.config import config
 from toolbelt.constants import (
     DP_REPO,
     HEADLESS_REPO,
-    INTERNAL_DIR,
+    INTERNAL_CONFIG_PATH,
     K8S_REPO,
     LAUNCHER_REPO,
-    MAIN_DIR,
+    MAIN_CONFIG_PATH,
     PLAYER_REPO,
     RELEASE_BASE_URL,
     SEED_REPO,
@@ -22,13 +23,12 @@ from toolbelt.types import Network, RepoInfos
 from toolbelt.utils.url import build_download_url
 
 from .copy_machine import COPY_MACHINE
-from .manifest import MANIFESTS_UPDATER
 from .repos import get_latest_commits
 
 logger = structlog.get_logger(__name__)
 
 PROJECT_NAME_MAP = {"9c-launcher": "launcher", "NineChronicles": "player"}
-APV_DIR_MAP: Dict[Network, str] = {"internal": INTERNAL_DIR, "main": MAIN_DIR}
+APV_PATH_MAP: Dict[Network, str] = {"internal": INTERNAL_CONFIG_PATH, "main": MAIN_CONFIG_PATH}
 
 
 def prepare_release(
@@ -80,10 +80,14 @@ def prepare_release(
     if config.env == "test":
         bucket_prefix = "ci-test/"
 
+    docker_image_tag = f"v{rc_number}-{deploy_number}"
+
     logger.info("Start player, launcher artifacts copy")
     for info in repo_infos:
         repo, _, commit = info
 
+        if network == "internal" and repo == HEADLESS_REPO:
+            docker_image_tag = f"git-{commit}"
         try:
             COPY_MACHINE[PROJECT_NAME_MAP[repo]](
                 apv=apv,
@@ -106,37 +110,17 @@ def prepare_release(
                     slack_channel,
                     f"[CI] Prepared binary - {download_url}",
                 )
+
         except KeyError:
             pass
 
-    """
-    github_client.repo = K8S_REPO
-
-    if config.env == "test":
-        target_branch = "ci-test"
-    else:
-        target_branch = "main"
-
-    MANIFESTS_UPDATER[network](github_client, repo_infos, apv, target_branch)
-
-    if network == "internal":
-        for info in repo_infos:
-            repo, _, commit = info
-            github_client.repo = repo
-
-            try:
-                github_client.create_ref(
-                    f"refs/tags/internal-v{rc_number}-{deploy_number}-{apv.version}",
-                    commit,
-                )
-            except HTTPError as e:
-                logger.info("Failed internal tagging", err=e)
-    """
+    print(f'APV: {apv.raw}')
+    print(f'Image: {docker_image_tag}')
 
     if slack_channel:
-        slack.send_simple_msg(
+        slack.send_msg(
             slack_channel,
-            f"[CI] Finish prepare {network} release",
+            text=f"[CI] Finish prepare *{network}* release\n*APV*\n  {apv.raw}\n*Image*\n  planetariumhq/ninechronicles-headless:{docker_image_tag}"
         )
 
 
@@ -146,7 +130,7 @@ def create_apv(
     network: Network,
     repo_infos: RepoInfos,
 ) -> Apv:
-    prev_apv = get_apv(APV_DIR_MAP[network])
+    prev_apv = get_apv(APV_PATH_MAP[network])
     prev_apv_detail = planet.apv_analyze(prev_apv)
 
     apvIncreaseRequired = True

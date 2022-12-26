@@ -1,11 +1,12 @@
-import os
+from toolbelt.client.session import BaseUrlSession
+from toolbelt.constants import RELEASE_BASE_URL
+from toolbelt.exceptions import ResponseError
 
-import yaml
 
-
-def get_apv(dir: str) -> str:
-    path = os.path.join(dir, "configmap-versions.yaml")
-
-    with open(path) as f:
-        doc = yaml.safe_load(f)
-        return doc["data"]["APP_PROTOCOL_VERSION"]
+def get_apv(path: str) -> str:
+    session = BaseUrlSession(RELEASE_BASE_URL)
+    resp = session.request("get", path)
+    if not resp.ok:
+        raise ResponseError(f"S3API ResponseError: {resp.content}")
+    doc = resp.json()
+    return doc["AppProtocolVersion"]

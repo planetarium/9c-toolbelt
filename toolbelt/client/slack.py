@@ -36,7 +36,7 @@ class SlackClient:
 
         return self.send_msg(channel, text=msg)
 
-    def send_msg(self, channel: str, *, text: str, blocks: List[str] = []):
+    def send_msg(self, channel: str, *, text: str, blocks: List[dict] = []):
         """
         It sends a message to a channel
 
@@ -60,6 +60,7 @@ class SlackClient:
             "/api/chat.postMessage",
             data={
                 "channel": channel,
+                "mrkdwn": True,
                 "text": text,
                 "blocks": blocks,
             },

@@ -35,6 +35,9 @@ class S3File:
         # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.upload_file
         self.s3.meta.client.upload_file(temp_filepath, self.bucket_name, filename)
 
+    def load(self, filename: str) -> dict:
+        return self._load(filename)
+
     def update(self, filename: str, new_data: dict):
         data = self._load(filename)
 
