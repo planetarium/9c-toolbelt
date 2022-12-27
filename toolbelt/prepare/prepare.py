@@ -28,7 +28,10 @@ from .repos import get_latest_commits
 logger = structlog.get_logger(__name__)
 
 PROJECT_NAME_MAP = {"9c-launcher": "launcher", "NineChronicles": "player"}
-APV_PATH_MAP: Dict[Network, str] = {"internal": INTERNAL_CONFIG_PATH, "main": MAIN_CONFIG_PATH}
+APV_PATH_MAP: Dict[Network, str] = {
+    "internal": INTERNAL_CONFIG_PATH,
+    "main": MAIN_CONFIG_PATH,
+}
 
 
 def prepare_release(
@@ -114,13 +117,13 @@ def prepare_release(
         except KeyError:
             pass
 
-    print(f'APV: {apv.raw}')
-    print(f'Image: {docker_image_tag}')
+    print(f"APV: {apv.raw}")
+    print(f"Image: {docker_image_tag}")
 
     if slack_channel:
         slack.send_msg(
             slack_channel,
-            text=f"[CI] Finish prepare *{network}* release\n*APV*\n  {apv.raw}\n*Image*\n  planetariumhq/ninechronicles-headless:{docker_image_tag}"
+            text=f"[CI] Finish prepare *{network}* release\n*APV*\n  {apv.raw}\n*Image*\n  planetariumhq/ninechronicles-headless:{docker_image_tag}",
         )
 
 

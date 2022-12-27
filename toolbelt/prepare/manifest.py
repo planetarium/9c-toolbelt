@@ -5,7 +5,11 @@ from typing import Callable, Dict, List, Tuple
 import structlog
 
 from toolbelt.client import GithubClient
-from toolbelt.constants import INTERNAL_CONFIG_PATH, MAIN_CONFIG_PATH, ONBOARDING_CONFIG_PATH
+from toolbelt.constants import (
+    INTERNAL_CONFIG_PATH,
+    MAIN_CONFIG_PATH,
+    ONBOARDING_CONFIG_PATH,
+)
 from toolbelt.k8s import ManifestManager
 from toolbelt.planet import Apv
 from toolbelt.types import Network, RepoInfos

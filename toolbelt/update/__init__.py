@@ -23,5 +23,6 @@ def release_infos(rc_number: int, deploy_number: int):
     launcher = apv.extra["launcher"].split("/")[1]
 
     update_latest(apv.version, launcher)
-    update_root_config(apv.raw, f"planetariumhq/ninechronicles-headless:v{rc_number}-{deploy_number}")
-
+    update_root_config(
+        apv.raw, f"planetariumhq/ninechronicles-headless:v{rc_number}-{deploy_number}"
+    )
