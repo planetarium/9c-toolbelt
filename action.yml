@@ -1,0 +1,65 @@
+name: Release
+description: "Release"
+inputs:
+  COMMAND:
+    description: 'command argument'
+    required: true
+  network:
+    description: 'Release network environment'
+    default: 'internal'
+  rc_number:
+    description: 'Rc number (e.g. 100310)'
+    required: true
+  deploy_number:
+    description: 'Deploy number (e.g. 1)'
+    required: true
+  launcher_commit:
+    description: 'Specific launcher commit'
+  player_commit:
+    description: 'Specific player commit'
+  ENV:
+    description: 'Environment'
+    default: 'test'
+  GITHUB_TOKEN:
+    description: 'GITHUB_TOKEN'
+    required: true
+  SLACK_TOKEN:
+    description: 'SLACK_TOKEN'
+    required: true
+  SLACK_CHANNEL:
+    description: 'SLACK_CHANNEL'
+    required: true
+  KEY_PASSPHRASE:
+    description: 'KEY_PASSPHRASE'
+    required: true
+  KEY_ADDRESS:
+    description: 'KEY_ADDRESS'
+    required: true
+  KEY_PRIVATE:
+    description: 'KEY_PRIVATE'
+    required: true
+  AWS_ACCESS_KEY_ID:
+    description: 'AWS_ACCESS_KEY_ID'
+    required: true
+  AWS_SECRET_ACCESS_KEY:
+    description: 'AWS_SECRET_ACCESS_KEY'
+    required: true
+runs:
+  using: 'docker'
+  env:
+    ENV: ${{ inputs.ENV }}
+    COMMAND: ${{ inputs.COMMAND }}
+    NETWORK: ${{ inputs.network }}
+    RC_NUMBER: ${{ inputs.rc_number }}
+    DEPLOY_NUMBER: ${{ inputs.deploy_number }}
+    LAUNCHER_COMMIT: ${{ inputs.launcher_commit }}
+    PLAYER_COMMIT: ${{ inputs.player_commit }}
+    GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+    SLACK_TOKEN: ${{ inputs.SLACK_TOKEN }}
+    SLACK_CHANNEL: ${{ inputs.SLACK_CHANNEL }}
+    KEY_PASSPHRASE: ${{ inputs.KEY_PASSPHRASE }}
+    KEY_ADDRESS: ${{ inputs.KEY_ADDRESS }}
+    KEY_PRIVATE: ${{ inputs.KEY_PRIVATE }}
+    AWS_ACCESS_KEY_ID: ${{ inputs.AWS_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
+  image: 'Dockerfile'
