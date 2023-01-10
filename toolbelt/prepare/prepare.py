@@ -117,8 +117,8 @@ def prepare_release(
         except KeyError:
             pass
 
-    print(f"APV: {apv.raw}")
-    print(f"Image: {docker_image_tag}")
+    logger.info(f"APV: {apv.raw}")
+    logger.info(f"Image: {docker_image_tag}")
 
     if slack_channel:
         slack.send_msg(
