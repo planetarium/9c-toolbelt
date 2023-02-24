@@ -83,14 +83,17 @@ def prepare_release(
     if config.env == "test":
         bucket_prefix = "ci-test/"
 
-    docker_image_tag = f"v{rc_number}-{deploy_number}"
+    headless_image_tag = dp_image_tag = f"v{rc_number}-{deploy_number}"
 
     logger.info("Start player, launcher artifacts copy")
     for info in repo_infos:
         repo, _, commit = info
 
-        if network == "internal" and repo == HEADLESS_REPO:
-            docker_image_tag = f"git-{commit}"
+        if network == "internal":
+            if repo == HEADLESS_REPO:
+                headless_image_tag = f"git-{commit}"
+            elif repo == DP_REPO:
+                dp_image_tag = f"git-{commit}"
         try:
             COPY_MACHINE[PROJECT_NAME_MAP[repo]](
                 apv=apv,
@@ -118,12 +121,12 @@ def prepare_release(
             pass
 
     logger.info(f"APV: {apv.raw}")
-    logger.info(f"Image: {docker_image_tag}")
+    logger.info(f"Image: {headless_image_tag}")
 
     if slack_channel:
         slack.send_msg(
             slack_channel,
-            text=f"[CI] Finish prepare *{network}* release\n*APV*\n  {apv.raw}\n*Image*\n  planetariumhq/ninechronicles-headless:{docker_image_tag}",
+            text=f"[CI] Finish prepare *{network}* release\n*APV*\n  {apv.raw}\n*Image*\n  planetariumhq/ninechronicles-headless:{headless_image_tag}\n  planetariumhq/ninechronicles-dataprovider:{dp_image_tag}",
         )
 
 
