@@ -1,7 +1,4 @@
-import os
-
 import typer
-import yaml
 
 from toolbelt.constants import MAIN_CONFIG_PATH
 from toolbelt.k8s import get_apv

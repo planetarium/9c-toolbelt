@@ -1,4 +1,3 @@
-import os
 from typing import Dict, Optional
 
 import structlog
@@ -9,14 +8,13 @@ from toolbelt.constants import (
     DP_REPO,
     HEADLESS_REPO,
     INTERNAL_CONFIG_PATH,
-    K8S_REPO,
     LAUNCHER_REPO,
     MAIN_CONFIG_PATH,
     PLAYER_REPO,
     RELEASE_BASE_URL,
     SEED_REPO,
 )
-from toolbelt.k8s.apv import get_apv
+from toolbelt.k8s import get_apv
 from toolbelt.planet import Apv, Planet, generate_extra
 from toolbelt.types import Network, RepoInfos
 from toolbelt.utils.url import build_download_url
