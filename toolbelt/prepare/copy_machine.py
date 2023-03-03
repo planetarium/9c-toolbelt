@@ -27,6 +27,7 @@ def copy_players(
     network: Network,
     commit: str,
     prefix: str = "",
+    dry_run: bool = False,
 ):
     artifact_bucket = S3File(ARTIFACT_BUCKET)
     release_bucket = S3File(RELEASE_BUCKET)
@@ -46,28 +47,33 @@ def copy_players(
             )[1:]
         )
 
-        artifact_bucket.copy_from_bucket(
-            artifact_path,
-            RELEASE_BUCKET,
-            release_path,
-        )
-        logger.info(f"Finish player {artifact_path} copy")
-
-        if "Windows.zip" == file_name:
-            output_path = os.path.join(
-                OUTPUT_DIR, release_path.rstrip(f"/{release_file_name}")
+        if not dry_run:
+            artifact_bucket.copy_from_bucket(
+                artifact_path,
+                RELEASE_BUCKET,
+                release_path,
             )
-            logger.info("Copy to output folder", output_path=output_path)
-            try:
-                os.makedirs(output_path, exist_ok=True)
-            except FileExistsError:
-                pass
-            release_bucket.download(release_path, output_path)
+            logger.info(f"Finish player {artifact_path} copy")
 
-            with zipfile.ZipFile(f"{output_path}/{release_file_name}", "r") as archive:
-                archive.extractall(output_path)
+            if "Windows.zip" == file_name:
+                output_path = os.path.join(
+                    OUTPUT_DIR, release_path.rstrip(f"/{release_file_name}")
+                )
+                logger.info("Copy to output folder", output_path=output_path)
+                try:
+                    os.makedirs(output_path, exist_ok=True)
+                except FileExistsError:
+                    pass
+                release_bucket.download(release_path, output_path)
 
-            os.remove(f"{output_path}/{release_file_name}")
+                with zipfile.ZipFile(
+                    f"{output_path}/{release_file_name}", "r"
+                ) as archive:
+                    archive.extractall(output_path)
+
+                os.remove(f"{output_path}/{release_file_name}")
+        else:
+            logger.info(f"Skip copy player", dry_run=dry_run)
 
 
 def copy_launchers(
@@ -76,6 +82,7 @@ def copy_launchers(
     network: Network,
     commit: str,
     prefix: str = "",
+    dry_run: bool = False,
 ):
     artifact_bucket = S3File(ARTIFACT_BUCKET)
     release_bucket = S3File(RELEASE_BUCKET)
@@ -97,46 +104,52 @@ def copy_launchers(
         with tempfile.TemporaryDirectory() as tmp_path:
             logger.info(f"Download launcher {artifact_path}", artifact=file_name)
 
-            download(
-                artifact_bucket,
-                s3_path=artifact_path,
-                path=tmp_path,
-                os_name=os_name,
-                extension=extension,
-            )
-            download_path = f"{tmp_path}/{file_name}"
-            config_path = get_config_path(os_name)
+            if not dry_run:
+                download(
+                    artifact_bucket,
+                    s3_path=artifact_path,
+                    path=tmp_path,
+                    os_name=os_name,
+                    extension=extension,
+                )
+                download_path = f"{tmp_path}/{file_name}"
+                config_path = get_config_path(os_name)
 
-            release_bucket.download(f"{network}/config.json", tmp_path)
-            new_config = generate_new_config(network, apv, tmp_path)
+                release_bucket.download(f"{network}/config.json", tmp_path)
+                new_config = generate_new_config(network, apv, tmp_path)
 
-            write_config(f"{tmp_path}/{config_path}", new_config)
+                write_config(f"{tmp_path}/{config_path}", new_config)
 
-            if "Windows.zip" == file_name:
-                logger.info("Copy to output folder")
-                output_path = os.path.join(OUTPUT_DIR, release_path)
-                shutil.copytree(f"{tmp_path}/{os_name}", output_path)
+                if "Windows.zip" == file_name:
+                    logger.info("Copy to output folder")
+                    output_path = os.path.join(OUTPUT_DIR, release_path)
+                    shutil.copytree(f"{tmp_path}/{os_name}", output_path)
 
-            compress_launcher(tmp_path, os_name, extension)
-            logger.info(f"Finish overwrite config", artifact=file_name)
+                compress_launcher(tmp_path, os_name, extension)
+                logger.info(f"Finish overwrite config", artifact=file_name)
 
-            if network == "main" and file_name == "Windows.zip":
-                renamed_file_path = f"{tmp_path}/{unsigned_prefix}{file_name}"
+                if network == "main" and file_name == "Windows.zip":
+                    renamed_file_path = f"{tmp_path}/{unsigned_prefix}{file_name}"
 
-                os.rename(download_path, renamed_file_path)
-                download_path = renamed_file_path
+                    os.rename(download_path, renamed_file_path)
+                    download_path = renamed_file_path
 
-            release_bucket.upload(
-                download_path,
-                release_path,
-            )
+                release_bucket.upload(
+                    download_path,
+                    release_path,
+                )
 
-            release_bucket.upload(f"{tmp_path}/config.json", f"{prefix}{network}")
-            logger.info(
-                f"Upload Finish",
-                download_path=download_path,
-                release_path=release_path,
-            )
+                release_bucket.upload(f"{tmp_path}/config.json", f"{prefix}{network}")
+                logger.info(
+                    "Upload Finish",
+                    download_path=download_path,
+                    release_path=release_path,
+                )
+            else:
+                logger.info(
+                    "Skip upload launcher",
+                    dry_run=dry_run,
+                )
 
 
 def download(s3: S3File, *, s3_path: str, path: str, os_name: str, extension: str):

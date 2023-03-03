@@ -19,6 +19,7 @@ def release(
     launcher_commit: Optional[str] = None,
     player_commit: Optional[str] = None,
     slack_channel: Optional[str] = None,
+    dry_run: bool = False,
 ):
     """
     Run internal release script
@@ -37,6 +38,7 @@ def release(
         launcher_commit=launcher_commit,
         player_commit=player_commit,
         slack_channel=slack_channel,
+        dry_run=dry_run,
     )
 
 
