@@ -26,6 +26,26 @@ def test_get_tags(requests_mock, github_tags_sample, mocker):
 
     assert count == 1
 
+def test_get_workflow_runs(requests_mock, github_workflow_runs_sample, mocker):
+    client = GithubClient("test", org=org, repo=repo)
+    mocker.patch("time.sleep")
+
+    requests_mock.get(
+        f"/repos/{client.org}/{client.repo}/actions/runs?status=success&page=1",
+        json=github_workflow_runs_sample,
+    )
+    requests_mock.get(
+        f"/repos/{client.org}/{client.repo}/actions/runs?status=success&page=2",
+        json=[],
+    )
+
+    count = 0
+    for r in client.get_workflow_runs("success", head_sha="b3c6f7af52519c5f71ce1a93c3f939f8ae09496f"):
+        assert r["workflow_runs"][0]["id"]
+        count += 1
+
+    assert count == 1
+
 
 def test_get_content(requests_mock, github_path_content_sample):
     client = GithubClient("test token", org=org, repo=repo)

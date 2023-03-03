@@ -1,12 +1,28 @@
 import base64
 import time
-from typing import Any, Iterator, Optional, Tuple
+from typing import Any, Iterator, Optional, Tuple, Literal
 
 import requests
 
 from toolbelt.client.session import BaseUrlSession
 
 GITHUB_BASE_URL = "https://api.github.com"
+WORKFLOW_STATUS = Literal[
+    "completed",
+    "action_required",
+    "cancelled",
+    "failure",
+    "neutral",
+    "skipped",
+    "stale",
+    "success",
+    "timed_out",
+    "in_progress",
+    "queued",
+    "requested",
+    "waiting",
+    "pending",
+]
 
 
 class GithubClient:
@@ -42,7 +58,9 @@ class GithubClient:
 
         return res
 
-    def get_tags(self, *, offset: int = 1, per_page: int = 10) -> Iterator[Any]:
+    def get_tags(
+        self, *, offset: int = 1, per_page: int = 10
+    ) -> Iterator[Any]:
         """
         It returns a generator that yields a list of tags for a given repo.
 
@@ -58,7 +76,9 @@ class GithubClient:
                 "per_page": per_page,
                 "page": page,
             }
-            r = self._session.get(f"/repos/{self.org}/{self.repo}/tags", params=params)
+            r = self._session.get(
+                f"/repos/{self.org}/{self.repo}/tags", params=params
+            )
             response = self.handle_response(r)
             if len(response) == 0:
                 break
@@ -84,6 +104,39 @@ class GithubClient:
 
         return content, response
 
+    def get_workflow_runs(
+        self,
+        status: WORKFLOW_STATUS,
+        *,
+        offset: int = 1,
+        per_page: int = 10,
+        branch: Optional[str] = None,
+        created: Optional[str] = None,
+        head_sha: Optional[str] = None,
+        event: Optional[str] = None,
+    ) -> Iterator[Any]:
+        for page in range(offset, 100):
+            params = {
+                "status": status,
+                "branch": branch,
+                "created": created,
+                "head_sha": head_sha,
+                "event": event,
+                "per_page": per_page,
+                "page": page,
+            }
+            r = self._session.get(
+                f"/repos/{self.org}/{self.repo}/actions/runs", params=params
+            )
+            response = self.handle_response(r)
+            if len(response) == 0:
+                break
+
+            yield response
+
+            # Temp delay
+            time.sleep(1)
+
     def update_content(
         self,
         *,
@@ -95,7 +148,9 @@ class GithubClient:
     ):
         data = {
             "message": message,
-            "content": base64.b64encode(content.encode("utf-8")).decode("utf-8"),
+            "content": base64.b64encode(content.encode("utf-8")).decode(
+                "utf-8"
+            ),
             "sha": commit,
             "branch": branch,
         }
@@ -112,13 +167,17 @@ class GithubClient:
 
         return response
 
-    def create_ref(self, ref: str, commit: str, *, key: Optional[str] = None) -> Any:
+    def create_ref(
+        self, ref: str, commit: str, *, key: Optional[str] = None
+    ) -> Any:
         data = {
             "ref": ref,
             "sha": commit,
             "key": key,
         }
-        r = self._session.post(f"/repos/{self.org}/{self.repo}/git/refs", json=data)
+        r = self._session.post(
+            f"/repos/{self.org}/{self.repo}/git/refs", json=data
+        )
         response = self.handle_response(r)
 
         return response
@@ -139,7 +198,9 @@ class GithubClient:
             "base": base,
             "draft": draft,
         }
-        r = self._session.post(f"/repos/{self.org}/{self.repo}/pulls", json=data)
+        r = self._session.post(
+            f"/repos/{self.org}/{self.repo}/pulls", json=data
+        )
         response = self.handle_response(r)
 
         return response
