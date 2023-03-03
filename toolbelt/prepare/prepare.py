@@ -1,4 +1,3 @@
-import os
 from typing import Dict, Optional
 
 import structlog
@@ -9,7 +8,6 @@ from toolbelt.constants import (
     DP_REPO,
     HEADLESS_REPO,
     INTERNAL_CONFIG_PATH,
-    K8S_REPO,
     LAUNCHER_REPO,
     MAIN_CONFIG_PATH,
     PLAYER_REPO,
@@ -21,8 +19,8 @@ from toolbelt.planet import Apv, Planet, generate_extra
 from toolbelt.types import Network, RepoInfos
 from toolbelt.utils.url import build_download_url
 
+from ..github.repos import get_latest_commits
 from .copy_machine import COPY_MACHINE
-from .repos import get_latest_commits
 
 logger = structlog.get_logger(__name__)
 
@@ -52,6 +50,8 @@ def prepare_release(
         network=network,
         isTest=config.env == "test",
         dry_run=dry_run,
+        launcher_commit=launcher_commit,
+        player_commit=player_commit,
     )
     if slack_channel:
         slack.send_simple_msg(
