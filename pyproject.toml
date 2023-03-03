@@ -13,9 +13,9 @@ dependencies = [
     "boto3 ~=1.24",
     "PyYAML ==6.0",
     "requests ==2.26.0",
-    "kubernetes ~=24.2",
     "typer[all] ~=0.6.1",
     "python-dotenv ~=0.19",
+    "PyGithub ~=1.58.0",
 ]
 dynamic = ["version", "description"]
 
