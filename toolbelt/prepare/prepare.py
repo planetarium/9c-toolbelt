@@ -41,12 +41,18 @@ def prepare_release(
     launcher_commit: Optional[str],
     player_commit: Optional[str],
     slack_channel: Optional[str],
+    dry_run: bool,
 ):
     planet = Planet(config.key_address, config.key_passphrase)
     slack = SlackClient(config.slack_token)
     github_client = GithubClient(config.github_token, org="planetarium", repo="")
 
-    logger.info(f"Start prepare release", network=network, isTest=config.env == "test")
+    logger.info(
+        f"Start prepare release",
+        network=network,
+        isTest=config.env == "test",
+        dry_run=dry_run,
+    )
     if slack_channel:
         slack.send_simple_msg(
             slack_channel,
@@ -99,6 +105,7 @@ def prepare_release(
                 commit=commit,
                 network=network,
                 prefix=bucket_prefix,
+                dry_run=dry_run,
             )
             logger.info(f"Finish copy", repo=repo)
 
