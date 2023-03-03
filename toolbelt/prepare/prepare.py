@@ -21,7 +21,7 @@ from toolbelt.types import Network, RepoInfos
 from toolbelt.utils.url import build_download_url
 
 from .copy_machine import COPY_MACHINE
-from .repos import get_latest_commits
+from ..github.repos import get_latest_commits
 
 logger = structlog.get_logger(__name__)
 
@@ -99,16 +99,14 @@ def prepare_release(
             elif repo == DP_REPO:
                 dp_image_tag = f"git-{commit}"
         try:
-            if not dry_run:
-                COPY_MACHINE[PROJECT_NAME_MAP[repo]](
-                    apv=apv,
-                    commit=commit,
-                    network=network,
-                    prefix=bucket_prefix,
-                )
-                logger.info(f"Finish copy", repo=repo)
-            else:
-                logger.info("Dry run, Skip", repo=repo)
+            COPY_MACHINE[PROJECT_NAME_MAP[repo]](
+                apv=apv,
+                commit=commit,
+                network=network,
+                prefix=bucket_prefix,
+                dry_run=dry_run,
+            )
+            logger.info(f"Finish copy", repo=repo)
 
             download_url = build_download_url(
                 RELEASE_BASE_URL,

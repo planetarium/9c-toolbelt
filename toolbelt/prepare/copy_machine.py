@@ -27,6 +27,7 @@ def copy_players(
     network: Network,
     commit: str,
     prefix: str = "",
+    dry_run: bool = False,
 ):
     artifact_bucket = S3File(ARTIFACT_BUCKET)
     release_bucket = S3File(RELEASE_BUCKET)
@@ -46,28 +47,33 @@ def copy_players(
             )[1:]
         )
 
-        artifact_bucket.copy_from_bucket(
-            artifact_path,
-            RELEASE_BUCKET,
-            release_path,
-        )
-        logger.info(f"Finish player {artifact_path} copy")
-
-        if "Windows.zip" == file_name:
-            output_path = os.path.join(
-                OUTPUT_DIR, release_path.rstrip(f"/{release_file_name}")
+        if not dry_run:
+            artifact_bucket.copy_from_bucket(
+                artifact_path,
+                RELEASE_BUCKET,
+                release_path,
             )
-            logger.info("Copy to output folder", output_path=output_path)
-            try:
-                os.makedirs(output_path, exist_ok=True)
-            except FileExistsError:
-                pass
-            release_bucket.download(release_path, output_path)
+            logger.info(f"Finish player {artifact_path} copy")
 
-            with zipfile.ZipFile(f"{output_path}/{release_file_name}", "r") as archive:
-                archive.extractall(output_path)
+            if "Windows.zip" == file_name:
+                output_path = os.path.join(
+                    OUTPUT_DIR, release_path.rstrip(f"/{release_file_name}")
+                )
+                logger.info("Copy to output folder", output_path=output_path)
+                try:
+                    os.makedirs(output_path, exist_ok=True)
+                except FileExistsError:
+                    pass
+                release_bucket.download(release_path, output_path)
 
-            os.remove(f"{output_path}/{release_file_name}")
+                with zipfile.ZipFile(
+                    f"{output_path}/{release_file_name}", "r"
+                ) as archive:
+                    archive.extractall(output_path)
+
+                os.remove(f"{output_path}/{release_file_name}")
+        else:
+            logger.info(f"Skip copy player {artifact_path} (dry)")
 
 
 def copy_launchers(
@@ -76,6 +82,7 @@ def copy_launchers(
     network: Network,
     commit: str,
     prefix: str = "",
+    dry_run: bool = False,
 ):
     artifact_bucket = S3File(ARTIFACT_BUCKET)
     release_bucket = S3File(RELEASE_BUCKET)
@@ -84,10 +91,11 @@ def copy_launchers(
         + build_download_url("", network, apv.version, "launcher", commit, "")[1:-1]
     )
     if network == "main":
-        release_bucket.copy(
-            "9c-launcher-config.json",
-            f"{prefix}main/config.json",
-        )
+        if not dry_run:
+            release_bucket.copy(
+                "9c-launcher-config.json",
+                f"{prefix}main/config.json",
+            )
 
     for file_name in ARTIFACTS:
         artifact_path = f"9c-launcher/{commit}/{file_name}"
@@ -126,17 +134,24 @@ def copy_launchers(
                 os.rename(download_path, renamed_file_path)
                 download_path = renamed_file_path
 
-            release_bucket.upload(
-                download_path,
-                release_path,
-            )
+            if not dry_run:
+                release_bucket.upload(
+                    download_path,
+                    release_path,
+                )
 
-            release_bucket.upload(f"{tmp_path}/config.json", f"{prefix}{network}")
-            logger.info(
-                f"Upload Finish",
-                download_path=download_path,
-                release_path=release_path,
-            )
+                release_bucket.upload(f"{tmp_path}/config.json", f"{prefix}{network}")
+                logger.info(
+                    f"Upload Finish",
+                    download_path=download_path,
+                    release_path=release_path,
+                )
+            else:
+                logger.info(
+                    f"Skip upload (dry)",
+                    download_path=download_path,
+                    release_path=release_path,
+                )
 
 
 def download(s3: S3File, *, s3_path: str, path: str, os_name: str, extension: str):
