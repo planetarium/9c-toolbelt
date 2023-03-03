@@ -1,8 +1,9 @@
 from typing import Dict, Optional
 
 import structlog
+from github import Github
 
-from toolbelt.client import GithubClient, SlackClient
+from toolbelt.client import SlackClient
 from toolbelt.config import config
 from toolbelt.constants import (
     DP_REPO,
@@ -43,9 +44,7 @@ def prepare_release(
 ):
     planet = Planet(config.key_address, config.key_passphrase)
     slack = SlackClient(config.slack_token)
-    github_client = GithubClient(
-        config.github_token, org="planetarium", repo=""
-    )
+    github_client = Github(config.github_token)
 
     logger.info(
         f"Start prepare release",
@@ -164,9 +163,7 @@ def create_apv(
         except KeyError:
             pass
 
-    extra = generate_extra(
-        commit_map, apvIncreaseRequired, prev_apv_detail.extra
-    )
+    extra = generate_extra(commit_map, apvIncreaseRequired, prev_apv_detail.extra)
     apv = planet.apv_sign(
         apv_version,
         **extra,

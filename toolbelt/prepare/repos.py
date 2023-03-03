@@ -1,8 +1,8 @@
 from typing import List, Optional, Tuple
 
 import structlog
+from github import Github
 
-from toolbelt.client.github import GithubClient
 from toolbelt.types import Network, RepoInfos
 from toolbelt.utils.parse import latest_tag
 
@@ -13,12 +13,13 @@ VALID_REPOS = (
     "NineChronicles.DataProvider",
     "libplanet-seed",
 )
+ORG = "planetarium"
 
 logger = structlog.get_logger(__name__)
 
 
 def get_latest_commits(
-    github_client: GithubClient,
+    github_client: Github,
     network: Network,
     rc: int,
     repos: List[Tuple[str, str]],
@@ -30,23 +31,20 @@ def get_latest_commits(
     for repo, branch in repos:
         if repo not in VALID_REPOS:
             raise ValueError("Not in valid repos")
-        github_client.repo = repo
         ref = f"heads/{branch}"
 
         if network == "internal":
-            r = github_client.get_ref(ref)
+            r = github_client.get_organization(ORG).get_repo(repo).get_git_ref(ref)
 
             if launcher_commit and repo == "9c-launcher":
                 commit = launcher_commit
             elif player_commit and repo == "NineChronicles":
                 commit = player_commit
             else:
-                commit = r["object"]["sha"]
+                commit = r.object.sha
             tag = None
         elif network == "main":
-            tags = []
-            for v in github_client.get_tags(per_page=100):
-                tags.extend(v)
+            tags = github_client.get_organization(ORG).get_repo(repo).get_tags()
             tag, commit = latest_tag(tags, rc, prefix=create_tag_prefix(network))
         repo_infos.append((repo, tag, commit))
 

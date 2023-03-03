@@ -1,6 +1,7 @@
 import structlog
+from github import Github
 
-from toolbelt.client import DockerClient, GithubClient
+from toolbelt.client import DockerClient
 from toolbelt.config import config
 from toolbelt.constants import HEADLESS_REPO
 from toolbelt.prepare.repos import get_latest_commits
@@ -10,7 +11,7 @@ logger = structlog.get_logger(__name__)
 
 
 def check_headless_image(network: Network, rc_number: int, deploy_number: int):
-    github_client = GithubClient(config.github_token, org="planetarium", repo="")
+    github_client = Github(config.github_token)
     docker_client = DockerClient(
         namespace="planetariumhq",
     )
