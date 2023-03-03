@@ -41,12 +41,20 @@ def prepare_release(
     launcher_commit: Optional[str],
     player_commit: Optional[str],
     slack_channel: Optional[str],
+    dry_run: bool,
 ):
     planet = Planet(config.key_address, config.key_passphrase)
     slack = SlackClient(config.slack_token)
-    github_client = GithubClient(config.github_token, org="planetarium", repo="")
+    github_client = GithubClient(
+        config.github_token, org="planetarium", repo=""
+    )
 
-    logger.info(f"Start prepare release", network=network, isTest=config.env == "test")
+    logger.info(
+        f"Start prepare release",
+        network=network,
+        isTest=config.env == "test",
+        dry_run=dry_run,
+    )
     if slack_channel:
         slack.send_simple_msg(
             slack_channel,
@@ -94,13 +102,16 @@ def prepare_release(
             elif repo == DP_REPO:
                 dp_image_tag = f"git-{commit}"
         try:
-            COPY_MACHINE[PROJECT_NAME_MAP[repo]](
-                apv=apv,
-                commit=commit,
-                network=network,
-                prefix=bucket_prefix,
-            )
-            logger.info(f"Finish copy", repo=repo)
+            if not dry_run:
+                COPY_MACHINE[PROJECT_NAME_MAP[repo]](
+                    apv=apv,
+                    commit=commit,
+                    network=network,
+                    prefix=bucket_prefix,
+                )
+                logger.info(f"Finish copy", repo=repo)
+            else:
+                logger.info("Dry run, Skip", repo=repo)
 
             download_url = build_download_url(
                 RELEASE_BASE_URL,
@@ -155,7 +166,9 @@ def create_apv(
         except KeyError:
             pass
 
-    extra = generate_extra(commit_map, apvIncreaseRequired, prev_apv_detail.extra)
+    extra = generate_extra(
+        commit_map, apvIncreaseRequired, prev_apv_detail.extra
+    )
     apv = planet.apv_sign(
         apv_version,
         **extra,
