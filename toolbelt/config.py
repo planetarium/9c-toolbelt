@@ -1,5 +1,5 @@
 import os
-from typing import NamedTuple, get_args
+from typing import NamedTuple, get_args, Optional
 
 from dotenv import load_dotenv
 
@@ -7,38 +7,48 @@ from toolbelt.types import Env
 
 load_dotenv(".env")
 
-# TODO: need to validation
-_env: str = os.environ["ENV"]
-slack_token: str = os.environ["SLACK_TOKEN"]
-github_token: str = os.environ["GITHUB_TOKEN"]
-key_passphrase: str = os.environ["KEY_PASSPHRASE"]
-key_address: str = os.environ["KEY_ADDRESS"]
-
 
 class Config(NamedTuple):
-    # Slack Bot API Token
-    slack_token: str
     # Github token (commit, read)
     github_token: str
     # signer key passphrase
-    key_passphrase: str
+    key_passphrase: Optional[str] = None
     # signer key address
-    key_address: str
+    key_address: Optional[str] = None
+    # Slack Bot API Token
+    slack_token: Optional[str] = None
+    # esigner path
+    esigner_path: Optional[str] = None
     # env
     env: Env = "test"
 
+    @classmethod
+    def init(self):
+        _env = os.environ["ENV"]
 
-env_map = {v: v for v in get_args(Env)}
-try:
-    env = env_map[_env]
-except KeyError:
-    raise ValueError(f"Env should in {get_args(Env)}")
+        env_map = {v: v for v in get_args(Env)}
+        try:
+            self.env = env_map[_env]
+        except KeyError:
+            raise ValueError(f"Env should in {get_args(Env)}")
+
+        github_token = os.environ["GITHUB_TOKEN"]
+
+        if not github_token:
+            raise ValueError(f"github_token is required")
+
+        self.github_token = github_token
+
+        for v in [
+            "SLACK_TOKEN",
+            "KEY_PASSPHRASE",
+            "KEY_ADDRESS",
+            "ESIGNER_PATH",
+        ]:
+            try:
+                setattr(self, v.lower(), os.environ[v])
+            except KeyError:
+                pass
 
 
-config = Config(
-    env=env,
-    slack_token=slack_token,
-    github_token=github_token,
-    key_passphrase=key_passphrase,
-    key_address=key_address,
-)
+config = Config.init()
