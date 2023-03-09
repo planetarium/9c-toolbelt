@@ -50,5 +50,7 @@ class Config(NamedTuple):
             except KeyError:
                 pass
 
+        return self
+
 
 config = Config.init()
