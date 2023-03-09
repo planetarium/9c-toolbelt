@@ -7,14 +7,23 @@ import zipfile
 
 import structlog
 from py7zr import SevenZipFile
+from tqdm import tqdm
 
+from toolbelt.client import GithubClient
 from toolbelt.client.aws import S3File
+from toolbelt.config import config
 from toolbelt.constants import OUTPUT_DIR, RELEASE_BUCKET
+from toolbelt.github.workflow import Artifacts, get_artifact_urls
 from toolbelt.planet.apv import Apv
 from toolbelt.types import Network
 from toolbelt.utils.url import build_download_url
 
 ARTIFACTS = ["Windows.zip", "macOS.tar.gz", "Linux.tar.gz"]
+artifacts_key_map = {
+    "Windows.zip": "Windows",
+    "macOS.tar.gz": "OSX",
+    "Linux.tar.gz": "Linux",
+}
 ARTIFACT_BUCKET = "9c-artifacts"
 
 unsigned_prefix = "Unsigned"
@@ -29,51 +38,55 @@ def copy_players(
     prefix: str = "",
     dry_run: bool = False,
 ):
-    artifact_bucket = S3File(ARTIFACT_BUCKET)
+    logger.info("[Player] Start player copy")
+    github_client = GithubClient(
+        config.github_token, org="planetarium", repo="NineChronicles"
+    )
     release_bucket = S3File(RELEASE_BUCKET)
 
-    for file_name in ARTIFACTS:
-        artifact_path = f"{commit}/{file_name}"
-        logger.info(f"Start player {artifact_path} copy")
+    urls = get_artifact_urls(
+        github_client,
+        commit,
+    )
 
-        release_file_name = file_name
-        if network == "main" and file_name == "Windows.zip":
-            release_file_name = unsigned_prefix + file_name
+    with tempfile.TemporaryDirectory() as tmp_path:
+        for file_name in ARTIFACTS:
+            download_path = download_from_github(
+                github_client, urls, artifacts_key_map[file_name], tmp_path
+            )
+            logger.info("[Player] Downloaded artifact", file_name=file_name)
 
-        release_path = (
-            prefix
-            + build_download_url(
-                "", network, apv.version, "player", commit, release_file_name
-            )[1:]
-        )
+            release_file_name = file_name
+            if network == "main" and file_name == "Windows.zip":
+                release_file_name = unsigned_prefix + file_name
 
-        if not dry_run:
-            artifact_bucket.copy_from_bucket(
-                artifact_path,
-                RELEASE_BUCKET,
+            release_path = (
+                prefix
+                + build_download_url(
+                    "",
+                    network,
+                    apv.version,
+                    "player",
+                    commit,
+                    "",
+                )[1:-1]
+            )
+
+            logger.info("[Player] extract", path=download_path)
+
+            with zipfile.ZipFile(download_path, mode="r") as archive:
+                archive.extractall(path=f"{tmp_path}/{artifacts_key_map[file_name]}")
+
+            os.rename(
+                f"{tmp_path}/{artifacts_key_map[file_name]}/{file_name}",
+                f"{tmp_path}/{release_file_name}",
+            )
+
+            release_bucket.upload(
+                f"{tmp_path}/{release_file_name}",
                 release_path,
             )
-            logger.info(f"Finish player {artifact_path} copy")
-
-            if "Windows.zip" == file_name:
-                output_path = os.path.join(
-                    OUTPUT_DIR, release_path.rstrip(f"/{release_file_name}")
-                )
-                logger.info("Copy to output folder", output_path=output_path)
-                try:
-                    os.makedirs(output_path, exist_ok=True)
-                except FileExistsError:
-                    pass
-                release_bucket.download(release_path, output_path)
-
-                with zipfile.ZipFile(
-                    f"{output_path}/{release_file_name}", "r"
-                ) as archive:
-                    archive.extractall(output_path)
-
-                os.remove(f"{output_path}/{release_file_name}")
-        else:
-            logger.info(f"Skip copy player", dry_run=dry_run)
+            logger.info("[Player] Upload Done", release_path=release_path)
 
 
 def copy_launchers(
@@ -215,6 +228,24 @@ def generate_new_config(network: Network, apv: Apv, path: str):
         json.dump(doc, f, indent=4)
         f.truncate()
         return doc
+
+
+def download_from_github(
+    github_client: GithubClient, urls: Artifacts, key: str, dir: str
+):
+    file_name = f"{dir}/{key}.zip"
+    res = github_client._session.get(urls[key])
+    res.raise_for_status()
+
+    total_size_in_bytes = int(res.headers.get("content-length", 0))
+    progress_bar = tqdm(total=total_size_in_bytes, unit="iB", unit_scale=True)
+    with open(file_name, "wb") as f:
+        for chunk in res.iter_content(chunk_size=1024):
+            progress_bar.update(len(chunk))
+            f.write(chunk)
+    progress_bar.close()
+
+    return file_name
 
 
 COPY_MACHINE = {

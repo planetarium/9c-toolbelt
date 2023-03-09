@@ -1,12 +1,28 @@
 import base64
 import time
-from typing import Any, Iterator, Optional, Tuple
+from typing import Any, Iterator, Literal, Optional, Tuple
 
 import requests
 
 from toolbelt.client.session import BaseUrlSession
 
 GITHUB_BASE_URL = "https://api.github.com"
+WORKFLOW_STATUS = Literal[
+    "completed",
+    "action_required",
+    "cancelled",
+    "failure",
+    "neutral",
+    "skipped",
+    "stale",
+    "success",
+    "timed_out",
+    "in_progress",
+    "queued",
+    "requested",
+    "waiting",
+    "pending",
+]
 
 
 class GithubClient:
@@ -83,6 +99,39 @@ class GithubClient:
         )
 
         return content, response
+
+    def get_workflow_runs(
+        self,
+        status: WORKFLOW_STATUS,
+        *,
+        offset: int = 1,
+        per_page: int = 10,
+        branch: Optional[str] = None,
+        created: Optional[str] = None,
+        head_sha: Optional[str] = None,
+        event: Optional[str] = None,
+    ) -> Iterator[Any]:
+        for page in range(offset, 100):
+            params = {
+                "status": status,
+                "branch": branch,
+                "created": created,
+                "head_sha": head_sha,
+                "event": event,
+                "per_page": per_page,
+                "page": page,
+            }
+            r = self._session.get(
+                f"/repos/{self.org}/{self.repo}/actions/runs", params=params
+            )
+            response = self.handle_response(r)
+            if len(response) == 0:
+                break
+
+            yield response
+
+            # Temp delay
+            time.sleep(1)
 
     def update_content(
         self,

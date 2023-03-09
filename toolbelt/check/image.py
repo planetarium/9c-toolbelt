@@ -3,7 +3,7 @@ import structlog
 from toolbelt.client import DockerClient, GithubClient
 from toolbelt.config import config
 from toolbelt.constants import HEADLESS_REPO
-from toolbelt.prepare.repos import get_latest_commits
+from toolbelt.github.repos import get_latest_commits
 from toolbelt.types import Network, RepoInfos
 
 logger = structlog.get_logger(__name__)

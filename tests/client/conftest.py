@@ -54,6 +54,14 @@ def github_create_pull_sample():
 
 
 @pytest.fixture
+def github_workflow_runs_sample():
+    with open(f"{DATA_DIR}/client/github/workflow_runs.json", mode="r") as f:
+        data = f.read()
+
+    return json.loads(data)
+
+
+@pytest.fixture
 def github_create_ref_sample():
     with open(f"{DATA_DIR}/client/github/create_ref.json", mode="r") as f:
         data = f.read()
