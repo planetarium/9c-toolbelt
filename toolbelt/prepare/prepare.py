@@ -1,6 +1,7 @@
 from typing import Dict, Optional
 
 import structlog
+import tempfile
 
 from toolbelt.client import GithubClient, SlackClient
 from toolbelt.config import config
@@ -20,7 +21,7 @@ from toolbelt.types import Network, RepoInfos
 from toolbelt.utils.url import build_download_url
 
 from ..github.repos import get_latest_commits
-from .copy_machine import COPY_MACHINE
+from .player_copy_machine import PlayerCopyMachine
 
 logger = structlog.get_logger(__name__)
 
@@ -40,10 +41,13 @@ def prepare_release(
     player_commit: Optional[str],
     slack_channel: Optional[str],
     dry_run: bool,
+    signing: bool,
 ):
     planet = Planet(config.key_address, config.key_passphrase)
     slack = SlackClient(config.slack_token)
-    github_client = GithubClient(config.github_token, org="planetarium", repo="")
+    github_client = GithubClient(
+        config.github_token, org="planetarium", repo=""
+    )
 
     logger.info(
         f"Start prepare release",
@@ -100,13 +104,20 @@ def prepare_release(
             elif repo == DP_REPO:
                 dp_image_tag = f"git-{commit}"
         try:
-            COPY_MACHINE[PROJECT_NAME_MAP[repo]](
-                apv=apv,
-                commit=commit,
-                network=network,
-                prefix=bucket_prefix,
-                dry_run=dry_run,
-            )
+            # COPY_MACHINE[PROJECT_NAME_MAP[repo]](
+            #     apv=apv,
+            #     commit=commit,
+            #     network=network,
+            #     prefix=bucket_prefix,
+            #     dry_run=dry_run,
+            #     signing=signing,
+            # )
+            if repo == "NineChronicles":
+                with tempfile.TemporaryDirectory() as tmp_path:
+                    copy_machine = PlayerCopyMachine(tmp_path)
+                    copy_machine.download(commit)
+                    copy_machine.preprocessing()
+                    copy_machine.upload(bucket_prefix, network, apv, commit)
             logger.info(f"Finish copy", repo=repo)
 
             download_url = build_download_url(
@@ -162,7 +173,9 @@ def create_apv(
         except KeyError:
             pass
 
-    extra = generate_extra(commit_map, apvIncreaseRequired, prev_apv_detail.extra)
+    extra = generate_extra(
+        commit_map, apvIncreaseRequired, prev_apv_detail.extra
+    )
     apv = planet.apv_sign(
         apv_version,
         **extra,

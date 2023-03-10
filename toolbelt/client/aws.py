@@ -91,15 +91,13 @@ class S3File:
             raise Exception(e, filepath)
         return dst_filepath
 
-    def upload(self, filepath: str, dir_path: str) -> str:
-        filename = os.path.basename(filepath)
-        dst_filepath = os.path.join(dir_path, filename)
+    def upload(self, filepath: str, dst_path: str) -> str:
         bucket = self.s3.Bucket(self.bucket_name)
         try:
-            bucket.upload_file(filepath, dst_filepath)
+            bucket.upload_file(filepath, dst_path)
         except botocore.exceptions.ClientError as e:
             raise Exception(e, filepath)
-        return dst_filepath
+        return dst_path
 
 
 def create_invalidation(path_list, distribution_id: str):

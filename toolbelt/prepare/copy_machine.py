@@ -37,6 +37,7 @@ def copy_players(
     commit: str,
     prefix: str = "",
     dry_run: bool = False,
+    signing: bool = False,
 ):
     logger.info("[Player] Start player copy")
     github_client = GithubClient(
@@ -57,8 +58,6 @@ def copy_players(
             logger.info("[Player] Downloaded artifact", file_name=file_name)
 
             release_file_name = file_name
-            if network == "main" and file_name == "Windows.zip":
-                release_file_name = unsigned_prefix + file_name
 
             release_path = (
                 prefix
@@ -133,19 +132,8 @@ def copy_launchers(
 
                 write_config(f"{tmp_path}/{config_path}", new_config)
 
-                if "Windows.zip" == file_name:
-                    logger.info("Copy to output folder")
-                    output_path = os.path.join(OUTPUT_DIR, release_path)
-                    shutil.copytree(f"{tmp_path}/{os_name}", output_path)
-
                 compress_launcher(tmp_path, os_name, extension)
                 logger.info(f"Finish overwrite config", artifact=file_name)
-
-                if network == "main" and file_name == "Windows.zip":
-                    renamed_file_path = f"{tmp_path}/{unsigned_prefix}{file_name}"
-
-                    os.rename(download_path, renamed_file_path)
-                    download_path = renamed_file_path
 
                 release_bucket.upload(
                     download_path,
