@@ -1,5 +1,5 @@
 import os
-from typing import NamedTuple, get_args, Optional
+from typing import NamedTuple, Optional, get_args
 
 from dotenv import load_dotenv
 
