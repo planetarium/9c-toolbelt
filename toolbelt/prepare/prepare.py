@@ -1,7 +1,7 @@
-from typing import Dict, Optional
+import tempfile
+from typing import Dict, Optional, Union
 
 import structlog
-import tempfile
 
 from toolbelt.client import GithubClient, SlackClient
 from toolbelt.config import config
@@ -21,6 +21,7 @@ from toolbelt.types import Network, RepoInfos
 from toolbelt.utils.url import build_download_url
 
 from ..github.repos import get_latest_commits
+from .launcher_copy_machine import LauncherCopyMachine
 from .player_copy_machine import PlayerCopyMachine
 
 logger = structlog.get_logger(__name__)
@@ -103,21 +104,15 @@ def prepare_release(
                 headless_image_tag = f"git-{commit}"
             elif repo == DP_REPO:
                 dp_image_tag = f"git-{commit}"
-        try:
-            # COPY_MACHINE[PROJECT_NAME_MAP[repo]](
-            #     apv=apv,
-            #     commit=commit,
-            #     network=network,
-            #     prefix=bucket_prefix,
-            #     dry_run=dry_run,
-            #     signing=signing,
-            # )
-            if repo == "NineChronicles":
-                with tempfile.TemporaryDirectory() as tmp_path:
+
+        if repo == PLAYER_REPO or repo == LAUNCHER_REPO:
+            with tempfile.TemporaryDirectory() as tmp_path:
+                copy_machine: Union[PlayerCopyMachine, LauncherCopyMachine]
+                if repo == PLAYER_REPO:
                     copy_machine = PlayerCopyMachine(tmp_path)
-                    copy_machine.download(commit)
-                    copy_machine.preprocessing()
-                    copy_machine.upload(bucket_prefix, network, apv, commit)
+                elif repo == LAUNCHER_REPO:
+                    copy_machine = LauncherCopyMachine(tmp_path)
+                copy_machine.run(commit, bucket_prefix, network, apv)
             logger.info(f"Finish copy", repo=repo)
 
             download_url = build_download_url(
@@ -133,9 +128,6 @@ def prepare_release(
                     slack_channel,
                     f"[CI] Prepared binary - {download_url}",
                 )
-
-        except KeyError:
-            pass
 
     logger.info(f"APV: {apv.raw}")
     logger.info(f"Image: {headless_image_tag}")

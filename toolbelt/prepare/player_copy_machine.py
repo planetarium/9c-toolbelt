@@ -18,7 +18,7 @@ from toolbelt.planet import Apv
 from toolbelt.types import Network
 from toolbelt.utils.url import build_s3_url
 
-from .new_copy_machine import CopyMachine
+from .copy_machine import CopyMachine
 
 logger = structlog.get_logger(__name__)
 
@@ -74,7 +74,11 @@ class PlayerCopyMachine(CopyMachine):
                 )
 
     def preprocessing(
-        self, additional_job: Optional[Callable[[str], Any]] = None
+        self,
+        *,
+        additional_job: Optional[Callable[[str], Any]],
+        network: Optional[Network] = None,
+        apv: Optional[Apv] = None,
     ):
         """
         It downloads the binary, extracts it, and then runs the additional_job function on the binary
@@ -85,56 +89,67 @@ class PlayerCopyMachine(CopyMachine):
 
         logger.debug("Preprocessing", app="player", dir_status=self.dir_map)
 
-        for key in self.dir_map.keys():
-            logger.debug("Start extract artifact", app="player", os=key)
+        for target_os in self.os_list:
+            logger.debug("Start extract artifact", app="player", os=target_os)
 
             try:
                 with zipfile.ZipFile(
-                    self.dir_map[key]["downloaded"], mode="r"
+                    self.dir_map[target_os]["downloaded"], mode="r"
                 ) as archive:
-                    extract_path = f"{os.path.join(self.base_dir, key)}"
+                    extract_path = f"{os.path.join(self.base_dir, target_os)}"
                     archive.extractall(path=extract_path)
 
                 logger.info(
                     "Finish extract artifact",
                     app="player",
-                    os=key,
+                    os=target_os,
                     extract_path=extract_path,
                 )
 
-                binary_path = (
-                    f"{os.path.join(extract_path, BINARY_FILENAME_MAP[key])}"
-                )
+                binary_path = os.path.join(extract_path, BINARY_FILENAME_MAP[target_os])
 
-                self.dir_map[key]["binary"] = binary_path
+                self.dir_map[target_os]["binary"] = binary_path
 
-                os.remove(self.dir_map[key]["downloaded"])
-                self.dir_map[key].pop("downloaded")
+                os.remove(self.dir_map[target_os]["downloaded"])
+                self.dir_map[target_os].pop("downloaded")
 
                 if additional_job:
                     logger.debug(
                         "Start additional job",
                         app="player",
-                        os=key,
+                        os=target_os,
                         binary_path=binary_path,
                     )
                     additional_job(binary_path)
                     logger.debug(
                         "Finish additional job",
                         app="player",
-                        os=key,
+                        os=target_os,
                         binary_path=binary_path,
                     )
             except Exception:
-                if key in self.required_os_list:
+                if target_os in self.required_os_list:
                     raise
                 logger.error(
                     "Extract artifact error occurred",
-                    os=key,
+                    os=target_os,
                     exc_info=True,
                 )
 
     def upload(self, s3_prefix: str, network: Network, apv: Apv, commit: str):
+        """
+        It uploads the player binary to S3
+
+        :param s3_prefix: The prefix of the S3 bucket
+        :type s3_prefix: str
+        :param network: The network that the player is being built for
+        :type network: Network
+        :param apv: Apv
+        :type apv: Apv
+        :param commit: The commit hash of the current build
+        :type commit: str
+        """
+
         logger.debug(
             "Upload",
             app="player",
@@ -142,42 +157,57 @@ class PlayerCopyMachine(CopyMachine):
 
         release_bucket = S3File(RELEASE_BUCKET)
 
-        for key in self.dir_map.keys():
+        for target_os in self.os_list:
             try:
                 release_path = s3_prefix + build_s3_url(
                     network,
                     apv.version,
                     "player",
                     commit,
-                    BINARY_FILENAME_MAP[key],
+                    BINARY_FILENAME_MAP[target_os],
                 )
                 logger.debug(
-                    "Release Path", app="player", os=key, path=release_path
+                    "Release Path",
+                    app="player",
+                    os=target_os,
+                    path=release_path,
                 )
 
                 release_bucket.upload(
-                    self.dir_map[key]["binary"],
+                    self.dir_map[target_os]["binary"],
                     release_path,
                 )
                 logger.info(
                     "Upload Done",
                     app="player",
-                    os=key,
+                    os=target_os,
                     release_path=release_path,
                 )
             except Exception:
-                if key in self.required_os_list:
+                if target_os in self.required_os_list:
                     raise
                 logger.error(
                     "Upload artifact error occurred",
-                    os=key,
+                    os=target_os,
                     exc_info=True,
                 )
 
 
-def download_from_github(
-    github_client: GithubClient, url: str, filename: str, dir: str
-):
+def download_from_github(github_client: GithubClient, url: str, filename: str, dir: str):
+    """
+    Download a file from a URL and save it to a file
+
+    :param github_client: GithubClient
+    :type github_client: GithubClient
+    :param url: The URL of the zip file to download
+    :type url: str
+    :param filename: The name of the file you want to download
+    :type filename: str
+    :param dir: The directory to download the zip file to
+    :type dir: str
+    :return: A path to the downloaded file.
+    """
+
     path = f"{os.path.join(dir, filename)}.zip"
     res = github_client._session.get(url)
     res.raise_for_status()
