@@ -78,21 +78,23 @@ def signing_for_windows(
 
     # 2. Move exe files
     input_dir = os.path.join(dir, "temp_input")
+    os.mkdir(input_dir)
     if target_app == "player":
-        os.rename(
-            os.path.join(extract_path, "Nine Chronicles.exe"),
-            os.path.join(input_dir, "Nine Chronicles.exe"),
-        )
-    elif target_app == "launcher":
         os.rename(
             os.path.join(extract_path, "9c.exe"),
             os.path.join(input_dir, "9c.exe"),
+        )
+    elif target_app == "launcher":
+        os.rename(
+            os.path.join(extract_path, "Nine Chronicles.exe"),
+            os.path.join(input_dir, "Nine Chronicles.exe"),
         )
     else:
         raise ValueError()
 
     # 3. signing
     output_dir = os.path.join(dir, "temp_output")
+    os.mkdir(output_dir)
     esigner.sign(
         **config.signing_secrets,
         input_dir_path=input_dir,
@@ -102,16 +104,18 @@ def signing_for_windows(
     # 4. Re move exe files
     if target_app == "player":
         os.rename(
-            os.path.join(output_dir, "Nine Chronicles.exe"),
-            os.path.join(extract_path, "Nine Chronicles.exe"),
+            os.path.join(output_dir, "9c.exe"),
+            os.path.join(extract_path, "9c.exe"),
         )
     elif target_app == "launcher":
         os.rename(
-            os.path.join(output_dir, "9c.exe"),
-            os.path.join(extract_path, "9c.exe"),
+            os.path.join(output_dir, "Nine Chronicles.exe"),
+            os.path.join(extract_path, "Nine Chronicles.exe"),
         )
 
     # 5. Compress
     result_path = compress(dir, extract_path, binary_path, use7z=False)
+    os.removedirs(input_dir)
+    os.removedirs(output_dir)
 
     return result_path

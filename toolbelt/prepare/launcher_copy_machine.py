@@ -5,7 +5,13 @@ from typing import Optional
 import structlog
 
 from toolbelt.client.aws import S3File
-from toolbelt.constants import BINARY_FILENAME_MAP, LINUX, MAC, RELEASE_BUCKET, WIN
+from toolbelt.constants import (
+    BINARY_FILENAME_MAP,
+    LINUX,
+    MAC,
+    RELEASE_BUCKET,
+    WIN,
+)
 from toolbelt.planet.apv import Apv
 from toolbelt.types import Network
 from toolbelt.utils.url import build_s3_url
@@ -38,7 +44,9 @@ class LauncherCopyMachine(CopyMachine):
                     file_name=file_name,
                 )
 
-                logger.info(f"Start download launcher artifact", artifact=file_name)
+                logger.info(
+                    f"Start download launcher artifact", artifact=file_name
+                )
                 artifact_bucket.download(artifact_path, self.base_dir)
                 self.dir_map[target_os] = {
                     "downloaded": os.path.join(self.base_dir, file_name)
@@ -76,8 +84,7 @@ class LauncherCopyMachine(CopyMachine):
                 logger.debug("Extract launcher", app="launcher", os=target_os)
 
                 extract_path = extract_launcher(
-                    self.base_dir,
-                    self.dir_map[target_os]["downloaded"]
+                    self.base_dir, self.dir_map[target_os]["downloaded"]
                 )
                 logger.debug(
                     "Finish extract launcher",
@@ -87,17 +94,29 @@ class LauncherCopyMachine(CopyMachine):
                 )
 
                 # 2. Download config.json from release bucket and generate config
-                logger.debug("Download config.json", app="launcher", os=target_os)
+                logger.debug(
+                    "Download config.json", app="launcher", os=target_os
+                )
 
-                downloaded_config_path = os.path.join(self.base_dir, "config.json")
+                downloaded_config_path = os.path.join(
+                    self.base_dir, "config.json"
+                )
 
-                release_bucket.download(f"{network}/config.json", self.base_dir)
-                new_config = generate_config(network, apv, downloaded_config_path)
+                release_bucket.download(
+                    f"{network}/config.json", self.base_dir
+                )
+                new_config = generate_config(
+                    network, apv, downloaded_config_path
+                )
 
-                logger.info("Rewrite config.json", app="launcher", os=target_os)
+                logger.info(
+                    "Rewrite config.json", app="launcher", os=target_os
+                )
 
                 config_path = get_config_path(target_os)
-                write_config(os.path.join(self.base_dir, config_path), new_config)
+                write_config(
+                    os.path.join(self.base_dir, config_path), new_config
+                )
 
                 # 3. Compress launcher
                 logger.debug(
@@ -109,7 +128,10 @@ class LauncherCopyMachine(CopyMachine):
                 binary_path = compress_launcher(
                     self.base_dir,
                     extract_path,
-                    os.path.join(self.base_dir, BINARY_FILENAME_MAP[target_os]),
+                    os.path.join(
+                        self.base_dir, BINARY_FILENAME_MAP[target_os]
+                    ),
+                    use7z=False,
                 )
                 logger.info(
                     "Compress launcher",
@@ -131,7 +153,9 @@ class LauncherCopyMachine(CopyMachine):
                 )
 
     def upload(self, s3_prefix: str, network: Network, apv: Apv, commit: str):
-        logger.debug("Upload", app="launcher", input=[s3_prefix, network, apv, commit])
+        logger.debug(
+            "Upload", app="launcher", input=[s3_prefix, network, apv, commit]
+        )
 
         release_bucket = S3File(RELEASE_BUCKET)
 
@@ -183,7 +207,9 @@ def get_config_path(os_name: str):
     if os_name in [WIN, LINUX]:
         return f"{os_name}/resources/app/config.json"
     elif os_name == MAC:
-        return f"{os_name}/Nine Chronicles.app/Contents/Resources/app/config.json"
+        return (
+            f"{os_name}/Nine Chronicles.app/Contents/Resources/app/config.json"
+        )
     else:
         raise ValueError(
             "Unsupported artifact name format: artifact name should be one of (macOS.tar.gz, Linux.tar.gz)"

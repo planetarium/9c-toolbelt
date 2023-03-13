@@ -44,7 +44,7 @@ def compress(
                     for f in files:
                         filename = os.path.join(p, f)
                         archive.write(
-                            filename=filename,
+                            file=filename,
                             arcname=filename.removeprefix(target_dir),
                         )
         else:
