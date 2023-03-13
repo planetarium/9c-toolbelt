@@ -25,10 +25,14 @@ class CopyMachine:
         apv: Apv,
         *,
         additional_job: Optional[Callable[[str], Any]] = None,
+        dry_run: bool = False,
     ):
         self.download(commit)
-        self.preprocessing(additional_job=additional_job, network=network, apv=apv)
-        self.upload(bucket_prefix, network, apv, commit)
+        self.preprocessing(
+            additional_job=additional_job, network=network, apv=apv
+        )
+        if not dry_run:
+            self.upload(bucket_prefix, network, apv, commit)
 
     def download(self, commit: str):
         raise NotImplementedError

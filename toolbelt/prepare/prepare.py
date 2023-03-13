@@ -112,7 +112,9 @@ def prepare_release(
                     copy_machine = PlayerCopyMachine(tmp_path)
                 elif repo == LAUNCHER_REPO:
                     copy_machine = LauncherCopyMachine(tmp_path)
-                copy_machine.run(commit, bucket_prefix, network, apv)
+                copy_machine.run(
+                    commit, bucket_prefix, network, apv, dry_run=dry_run
+                )
             logger.info(f"Finish copy", repo=repo)
 
             download_url = build_download_url(
@@ -128,9 +130,6 @@ def prepare_release(
                     slack_channel,
                     f"[CI] Prepared binary - {download_url}",
                 )
-
-    logger.info(f"APV: {apv.raw}")
-    logger.info(f"Image: {headless_image_tag}")
 
     if slack_channel:
         slack.send_msg(
