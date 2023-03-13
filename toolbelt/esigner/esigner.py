@@ -8,10 +8,11 @@ from toolbelt.exceptions import EsignerError
 class Esigner:
     def sign(
         self,
+        *,
         credential_id: str,
         username: str,
         password: str,
-        input_file_path: str,
+        input_dir_path: str,
         output_dir_path: str,
         totp_secret: str,
     ):
@@ -20,7 +21,7 @@ class Esigner:
             f"-credential_id={credential_id} "
             f"-username={username} "
             f"-password={password} "
-            f"-input_dir_path={input_file_path} "
+            f"-input_dir_path={input_dir_path} "
             f"-output_dir_path={output_dir_path} "
             f"-totp_secret={totp_secret}"
         )

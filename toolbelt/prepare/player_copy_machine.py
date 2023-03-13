@@ -19,6 +19,7 @@ from toolbelt.types import Network
 from toolbelt.utils.url import build_s3_url
 
 from .copy_machine import CopyMachine
+from toolbelt.utils.zip import extract as extract_player
 
 logger = structlog.get_logger(__name__)
 
@@ -76,7 +77,6 @@ class PlayerCopyMachine(CopyMachine):
     def preprocessing(
         self,
         *,
-        additional_job: Optional[Callable[[str], Any]],
         network: Optional[Network] = None,
         apv: Optional[Apv] = None,
     ):
@@ -93,11 +93,9 @@ class PlayerCopyMachine(CopyMachine):
             logger.debug("Start extract artifact", app="player", os=target_os)
 
             try:
-                with zipfile.ZipFile(
-                    self.dir_map[target_os]["downloaded"], mode="r"
-                ) as archive:
-                    extract_path = f"{os.path.join(self.base_dir, target_os)}"
-                    archive.extractall(path=extract_path)
+                extract_path = extract_player(
+                    self.base_dir, self.dir_map[target_os]["downloaded"], False
+                )
 
                 logger.info(
                     "Finish extract artifact",
@@ -106,27 +104,14 @@ class PlayerCopyMachine(CopyMachine):
                     extract_path=extract_path,
                 )
 
-                binary_path = os.path.join(extract_path, BINARY_FILENAME_MAP[target_os])
+                binary_path = os.path.join(
+                    extract_path, BINARY_FILENAME_MAP[target_os]
+                )
 
                 self.dir_map[target_os]["binary"] = binary_path
 
                 os.remove(self.dir_map[target_os]["downloaded"])
                 self.dir_map[target_os].pop("downloaded")
-
-                if additional_job:
-                    logger.debug(
-                        "Start additional job",
-                        app="player",
-                        os=target_os,
-                        binary_path=binary_path,
-                    )
-                    additional_job(binary_path)
-                    logger.debug(
-                        "Finish additional job",
-                        app="player",
-                        os=target_os,
-                        binary_path=binary_path,
-                    )
             except Exception:
                 if target_os in self.required_os_list:
                     raise
@@ -193,7 +178,9 @@ class PlayerCopyMachine(CopyMachine):
                 )
 
 
-def download_from_github(github_client: GithubClient, url: str, filename: str, dir: str):
+def download_from_github(
+    github_client: GithubClient, url: str, filename: str, dir: str
+):
     """
     Download a file from a URL and save it to a file
 

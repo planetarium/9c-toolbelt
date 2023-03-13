@@ -19,6 +19,7 @@ class Config(NamedTuple):
     slack_token: Optional[str] = None
     # esigner path
     esigner_path: Optional[str] = None
+    signing_secrets: Optional[dict] = None
     # env
     env: Env = "test"
 
@@ -49,6 +50,16 @@ class Config(NamedTuple):
                 setattr(self, v.lower(), os.environ[v])
             except KeyError:
                 pass
+
+        try:
+            self.signing_secrets = {
+                "credential_id": os.environ["ESIGNER_CREDENTIAL_ID"],
+                "username": os.environ["ESIGNER_USERNAME"],
+                "password": os.environ["ESIGNER_PASSWORD"],
+                "totp_secret": os.environ["ESIGNER_TOTP_SECRET"],
+            }
+        except KeyError:
+            pass
 
         return self
 
