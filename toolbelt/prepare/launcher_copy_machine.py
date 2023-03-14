@@ -5,13 +5,7 @@ from typing import Optional
 import structlog
 
 from toolbelt.client.aws import S3File
-from toolbelt.constants import (
-    BINARY_FILENAME_MAP,
-    LINUX,
-    MAC,
-    RELEASE_BUCKET,
-    WIN,
-)
+from toolbelt.constants import BINARY_FILENAME_MAP, LINUX, MAC, RELEASE_BUCKET, WIN
 from toolbelt.planet.apv import Apv
 from toolbelt.types import Network
 from toolbelt.utils.url import build_s3_url
@@ -26,6 +20,9 @@ logger = structlog.get_logger(__name__)
 
 
 class LauncherCopyMachine(CopyMachine):
+    def __init__(self) -> None:
+        super().__init__("launcher")
+
     def download(self, target_os: str, commit: str):
         logger.debug("Download artifact", app="launcher", input=commit)
 
@@ -44,9 +41,7 @@ class LauncherCopyMachine(CopyMachine):
 
         logger.info(f"Start download launcher artifact", artifact=file_name)
         artifact_bucket.download(artifact_path, self.base_dir)
-        self.dir_map[target_os] = {
-            "downloaded": os.path.join(self.base_dir, file_name)
-        }
+        self.dir_map[target_os] = {"downloaded": os.path.join(self.base_dir, file_name)}
         logger.info(
             f"Finish download launcher artifact",
             artifact=file_name,
@@ -126,9 +121,7 @@ class LauncherCopyMachine(CopyMachine):
         network: Network,
         apv: Apv,
     ):
-        logger.debug(
-            "Upload", app="launcher", input=[s3_prefix, network, apv, commit]
-        )
+        logger.debug("Upload", app="launcher", input=[s3_prefix, network, apv, commit])
 
         release_bucket = S3File(RELEASE_BUCKET)
 
@@ -171,9 +164,7 @@ def get_config_path(os_name: str):
     if os_name in [WIN, LINUX]:
         return f"{os_name}/resources/app/config.json"
     elif os_name == MAC:
-        return (
-            f"{os_name}/Nine Chronicles.app/Contents/Resources/app/config.json"
-        )
+        return f"{os_name}/Nine Chronicles.app/Contents/Resources/app/config.json"
     else:
         raise ValueError(
             "Unsupported artifact name format: artifact name should be one of (macOS.tar.gz, Linux.tar.gz)"

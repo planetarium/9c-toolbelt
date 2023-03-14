@@ -24,10 +24,8 @@ logger = structlog.get_logger(__name__)
 
 
 class PlayerCopyMachine(CopyMachine):
-    def __init__(
-        self, base_dir: str, app: Literal["player", "launcher"]
-    ) -> None:
-        super().__init__(base_dir, app)
+    def __init__(self) -> None:
+        super().__init__("player")
 
         self.urls: Optional[dict] = None
 
@@ -86,9 +84,7 @@ class PlayerCopyMachine(CopyMachine):
             extract_path=extract_path,
         )
 
-        binary_path = os.path.join(
-            extract_path, BINARY_FILENAME_MAP[target_os]
-        )
+        binary_path = os.path.join(extract_path, BINARY_FILENAME_MAP[target_os])
 
         self.dir_map[target_os]["binary"] = binary_path
         self.dir_map[target_os].pop("downloaded")
@@ -136,9 +132,7 @@ class PlayerCopyMachine(CopyMachine):
         os.remove(self.dir_map[target_os]["binary"])
 
 
-def download_from_github(
-    github_client: GithubClient, url: str, filename: str, dir: str
-):
+def download_from_github(github_client: GithubClient, url: str, filename: str, dir: str):
     """
     Download a file from a URL and save it to a file
 
