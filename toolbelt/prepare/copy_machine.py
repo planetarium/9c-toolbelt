@@ -127,11 +127,21 @@ def signing_for_windows(
     # 3. signing
     output_dir = os.path.join(dir, "temp_output")
     os.mkdir(output_dir)
-    esigner.sign(
-        **config.signing_secrets,
-        input_dir_path=input_dir,
-        output_dir_path=output_dir,
-    )
+    # esigner.sign(
+    #     **config.signing_secrets,
+    #     input_dir_path=input_dir,
+    #     output_dir_path=output_dir,
+    # )
+    if target_app == "player":
+        os.rename(
+            os.path.join(input_dir, "9c.exe"),
+            os.path.join(output_dir, "9c.exe"),
+        )
+    elif target_app == "launcher":
+        os.rename(
+            os.path.join(input_dir, "Nine Chronicles.exe"),
+            os.path.join(output_dir, "Nine Chronicles.exe"),
+        )
 
     # 4. Re move exe files
     if target_app == "player":
