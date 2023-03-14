@@ -1,6 +1,8 @@
 import os
 from typing import Dict, Literal, Optional
 
+import structlog
+
 from toolbelt.config import config
 from toolbelt.constants import LINUX, MAC, WIN
 from toolbelt.esigner import Esigner
@@ -8,13 +10,17 @@ from toolbelt.planet import Apv
 from toolbelt.types import Network
 from toolbelt.utils.zip import compress, extract
 
+logger = structlog.get_logger(__name__)
+
 
 class CopyMachine:
-    def __init__(
-        self, base_dir: str, app: Literal["player", "launcher"]
-    ) -> None:
-        self.os_list = [WIN, MAC, LINUX]
-        self.required_os_list = [WIN]
+    def __init__(self, base_dir: str, app: Literal["player", "launcher"]) -> None:
+        self.os_list = (
+            WIN,
+            MAC,
+            LINUX,
+        )
+        self.required_os_list = (WIN,)
 
         self.base_dir = base_dir
         self.app = app
@@ -34,23 +40,42 @@ class CopyMachine:
         dry_run: bool = False,
         signing: bool = False,
     ):
-        self.download(commit)
-        self.preprocessing(network=network, apv=apv)
-        if signing:
-            signing_for_windows(
-                Esigner(),
-                self.dir_map[WIN]["binary"],
-                self.base_dir,
-                self.app,
-            )
-        if not dry_run:
-            self.upload(bucket_prefix, network, apv, commit)
+        for target_os in self.os_list:
+            try:
+                self.download(target_os, commit)
+                self.preprocessing(target_os, network=network, apv=apv)
+                if signing:
+                    if target_os == WIN:
+                        signing_for_windows(
+                            Esigner(),
+                            self.dir_map[WIN]["binary"],
+                            self.base_dir,
+                            self.app,
+                        )
+                        logger.info("Finish signing", os=target_os, app=self.app)
+                if not dry_run:
+                    self.upload(
+                        target_os,
+                        commit=commit,
+                        s3_prefix=bucket_prefix,
+                        network=network,
+                        apv=apv,
+                    )
+            except Exception:
+                if target_os in self.required_os_list:
+                    raise
+                logger.error(
+                    "Download artifact error occurred",
+                    os=target_os,
+                    exc_info=True,
+                )
 
-    def download(self, commit: str):
+    def download(self, target_os: str, commit: str):
         raise NotImplementedError
 
     def preprocessing(
         self,
+        target_os: str,
         *,
         network: Optional[Network] = None,
         apv: Optional[Apv] = None,
@@ -59,10 +84,12 @@ class CopyMachine:
 
     def upload(
         self,
+        target_os: str,
+        *,
+        commit: str,
         s3_prefix: str,
         network: Network,
         apv: Apv,
-        commit: str,
     ):
         raise NotImplementedError
 

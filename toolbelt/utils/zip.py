@@ -26,9 +26,7 @@ def extract(dir: str, binary_path: str, use7z: bool = True) -> str:
     return dst_path
 
 
-def compress(
-    dir: str, target_dir: str, result_path: str, use7z: bool = True
-) -> str:
+def compress(dir: str, target_dir: str, result_path: str, use7z: bool = True) -> str:
     file_name = os.path.basename(result_path)
     os_name, extension = file_name.split(".", 1)
 
