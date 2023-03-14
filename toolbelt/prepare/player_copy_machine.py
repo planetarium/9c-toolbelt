@@ -109,8 +109,6 @@ class PlayerCopyMachine(CopyMachine):
                 )
 
                 self.dir_map[target_os]["binary"] = binary_path
-
-                os.remove(self.dir_map[target_os]["downloaded"])
                 self.dir_map[target_os].pop("downloaded")
             except Exception:
                 if target_os in self.required_os_list:
