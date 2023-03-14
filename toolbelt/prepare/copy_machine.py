@@ -115,7 +115,5 @@ def signing_for_windows(
 
     # 5. Compress
     result_path = compress(dir, extract_path, binary_path, use7z=False)
-    os.removedirs(input_dir)
-    os.removedirs(output_dir)
 
     return result_path
