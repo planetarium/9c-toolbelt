@@ -17,6 +17,8 @@ inputs:
     description: 'Specific launcher commit'
   player_commit:
     description: 'Specific player commit'
+  signing:
+    default: 'false'
   ENV:
     description: 'Environment'
     default: 'test'
@@ -54,6 +56,7 @@ runs:
     DEPLOY_NUMBER: ${{ inputs.deploy_number }}
     LAUNCHER_COMMIT: ${{ inputs.launcher_commit }}
     PLAYER_COMMIT: ${{ inputs.player_commit }}
+    SIGNING: ${{ inputs.signing }}
     GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
     SLACK_TOKEN: ${{ inputs.SLACK_TOKEN }}
     SLACK_CHANNEL: ${{ inputs.SLACK_CHANNEL }}
