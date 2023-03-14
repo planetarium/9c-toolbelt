@@ -30,6 +30,7 @@ RUN curl https://www.ssl.com/download/codesigntool-for-linux-and-macos/ -o /tmp/
     mv "/tmp/CodeSignTool-v1.2.7" "/codesign" && \
     chmod +x "/codesign/CodeSignTool.sh" && ln -s "/codesign/CodeSignTool.sh" "/usr/bin/codesign"
 
+ENV ESIGNER_PATH=/codesign
 ENV CODE_SIGN_TOOL_PATH=/codesign
 
 RUN python3 -m venv .venv && \
