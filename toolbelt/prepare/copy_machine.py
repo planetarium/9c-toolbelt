@@ -1,4 +1,5 @@
 import os
+import tempfile
 from typing import Dict, Literal, Optional
 
 import structlog
@@ -14,7 +15,7 @@ logger = structlog.get_logger(__name__)
 
 
 class CopyMachine:
-    def __init__(self, base_dir: str, app: Literal["player", "launcher"]) -> None:
+    def __init__(self, app: Literal["player", "launcher"]) -> None:
         self.os_list = (
             WIN,
             MAC,
@@ -22,7 +23,6 @@ class CopyMachine:
         )
         self.required_os_list = (WIN,)
 
-        self.base_dir = base_dir
         self.app = app
         self.dir_map: Dict[str, dict] = {
             WIN: {},
@@ -42,25 +42,28 @@ class CopyMachine:
     ):
         for target_os in self.os_list:
             try:
-                self.download(target_os, commit)
-                self.preprocessing(target_os, network=network, apv=apv)
-                if signing:
-                    if target_os == WIN:
-                        signing_for_windows(
-                            Esigner(),
-                            self.dir_map[WIN]["binary"],
-                            self.base_dir,
-                            self.app,
+                with tempfile.TemporaryDirectory() as tmp_path:
+                    self.base_dir = tmp_path
+
+                    self.download(target_os, commit)
+                    self.preprocessing(target_os, network=network, apv=apv)
+                    if signing:
+                        if target_os == WIN:
+                            signing_for_windows(
+                                Esigner(),
+                                self.dir_map[WIN]["binary"],
+                                self.base_dir,
+                                self.app,
+                            )
+                            logger.info("Finish signing", os=target_os, app=self.app)
+                    if not dry_run:
+                        self.upload(
+                            target_os,
+                            commit=commit,
+                            s3_prefix=bucket_prefix,
+                            network=network,
+                            apv=apv,
                         )
-                        logger.info("Finish signing", os=target_os, app=self.app)
-                if not dry_run:
-                    self.upload(
-                        target_os,
-                        commit=commit,
-                        s3_prefix=bucket_prefix,
-                        network=network,
-                        apv=apv,
-                    )
             except Exception:
                 if target_os in self.required_os_list:
                     raise

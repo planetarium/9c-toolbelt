@@ -104,20 +104,19 @@ def prepare_release(
                 dp_image_tag = f"git-{commit}"
 
         if repo == PLAYER_REPO or repo == LAUNCHER_REPO:
-            with tempfile.TemporaryDirectory() as tmp_path:
-                copy_machine: Union[PlayerCopyMachine, LauncherCopyMachine]
-                if repo == PLAYER_REPO:
-                    copy_machine = PlayerCopyMachine(tmp_path, "player")
-                elif repo == LAUNCHER_REPO:
-                    copy_machine = LauncherCopyMachine(tmp_path, "launcher")
-                copy_machine.run(
-                    commit,
-                    bucket_prefix,
-                    network,
-                    apv,
-                    dry_run=dry_run,
-                    signing=signing,
-                )
+            copy_machine: Union[PlayerCopyMachine, LauncherCopyMachine]
+            if repo == PLAYER_REPO:
+                copy_machine = PlayerCopyMachine()
+            elif repo == LAUNCHER_REPO:
+                copy_machine = LauncherCopyMachine()
+            copy_machine.run(
+                commit,
+                bucket_prefix,
+                network,
+                apv,
+                dry_run=dry_run,
+                signing=signing,
+            )
             logger.info(f"Finish copy", repo=repo)
 
             download_url = build_download_url(
