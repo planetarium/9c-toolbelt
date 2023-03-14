@@ -19,7 +19,8 @@ RUN apt-get update && \
     unzip \
     openjdk-11-jdk \
     python3-dev \
-    python3-pip && \
+    python3-pip \
+    python3-venv && \
 	rm -rf /var/lib/apt/lists/*
 
 RUN curl https://www.ssl.com/download/codesigntool-for-linux-and-macos/ -o /tmp/CodeSignTool.zip && \
