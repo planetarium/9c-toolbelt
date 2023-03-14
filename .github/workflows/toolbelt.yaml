@@ -34,8 +34,7 @@ concurrency:
 
 jobs:
   prepare-release:
-    runs-on:
-      labels: ["linux", "8cores"]
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
 
