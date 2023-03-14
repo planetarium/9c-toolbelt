@@ -31,7 +31,9 @@ RUN curl https://www.ssl.com/download/codesigntool-for-linux-and-macos/ -o /tmp/
 
 ENV ESIGNER_PATH=/tools/CodeSignTool
 
-RUN python3 -m pip install --upgrade -r /toolbelt/requirements.txt --no-cache-dir && \
+RUN python3 -m venv .venv && \
+    . .venv/bin/activate && \
+    python3 -m pip install --upgrade -r /toolbelt/requirements.txt --no-cache-dir && \
     flit install --extras all
 
 RUN dotnet tool install -g Libplanet.Tools

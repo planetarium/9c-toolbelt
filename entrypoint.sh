@@ -4,6 +4,7 @@ set -ex
 echo $COMMAND
 
 pip3 freeze
+. /toolbelt/.venv/bin/activate
 
 if [[ $COMMAND = "prepare" ]]; then
   planet key import --passphrase $KEY_PASSPHRASE $KEY_PRIVATE
