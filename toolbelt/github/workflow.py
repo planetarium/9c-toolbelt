@@ -1,15 +1,8 @@
-from typing import TypedDict
-
 from toolbelt.client.github import GithubClient
+from toolbelt.constants import LINUX, MAC, WIN
 
 
-class Artifacts(TypedDict):
-    Windows: str
-    OSX: str
-    Linux: str
-
-
-def get_artifact_urls(github_client: GithubClient, commit: str) -> Artifacts:
+def get_artifact_urls(github_client: GithubClient, commit: str) -> dict:
     workflow_runs = next(github_client.get_workflow_runs("success", head_sha=commit))
 
     artifacts_url = None
@@ -24,22 +17,22 @@ def get_artifact_urls(github_client: GithubClient, commit: str) -> Artifacts:
 
     assert len(artifacts["artifacts"]) >= 3
 
-    result: Artifacts = {
-        "Windows": "",
-        "OSX": "",
-        "Linux": "",
+    result = {
+        WIN: "",
+        MAC: "",
+        LINUX: "",
     }
 
     for artifact in artifacts["artifacts"]:
         assert artifact["expired"] != True
 
-        if "Windows" in artifact["name"]:
-            result["Windows"] = artifact["archive_download_url"]
+        if "Window" in artifact["name"]:
+            result[WIN] = artifact["archive_download_url"]
         if "OSX" in artifact["name"]:
-            result["OSX"] = artifact["archive_download_url"]
+            result[MAC] = artifact["archive_download_url"]
         if "Linux" in artifact["name"]:
-            result["Linux"] = artifact["archive_download_url"]
+            result[LINUX] = artifact["archive_download_url"]
 
-    assert result["Windows"] != ""
+    assert result[WIN] != ""
 
     return result

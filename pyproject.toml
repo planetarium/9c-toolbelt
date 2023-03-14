@@ -15,7 +15,6 @@ dependencies = [
     "requests ==2.26.0",
     "typer[all] ~=0.6.1",
     "python-dotenv ~=0.19",
-    "tqdm ~=4.65.0"
 ]
 dynamic = ["version", "description"]
 

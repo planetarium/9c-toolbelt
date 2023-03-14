@@ -20,6 +20,7 @@ def release(
     player_commit: Optional[str] = None,
     slack_channel: Optional[str] = None,
     dry_run: bool = False,
+    signing: bool = False,
 ):
     """
     Run internal release script
@@ -39,6 +40,7 @@ def release(
         player_commit=player_commit,
         slack_channel=slack_channel,
         dry_run=dry_run,
+        signing=signing,
     )
 
 

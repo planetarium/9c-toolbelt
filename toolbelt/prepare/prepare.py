@@ -1,4 +1,5 @@
-from typing import Dict, Optional
+import tempfile
+from typing import Dict, Optional, Union
 
 import structlog
 
@@ -20,7 +21,8 @@ from toolbelt.types import Network, RepoInfos
 from toolbelt.utils.url import build_download_url
 
 from ..github.repos import get_latest_commits
-from .copy_machine import COPY_MACHINE
+from .launcher_copy_machine import LauncherCopyMachine
+from .player_copy_machine import PlayerCopyMachine
 
 logger = structlog.get_logger(__name__)
 
@@ -40,10 +42,13 @@ def prepare_release(
     player_commit: Optional[str],
     slack_channel: Optional[str],
     dry_run: bool,
+    signing: bool,
 ):
     planet = Planet(config.key_address, config.key_passphrase)
     slack = SlackClient(config.slack_token)
-    github_client = GithubClient(config.github_token, org="planetarium", repo="")
+    github_client = GithubClient(
+        config.github_token, org="planetarium", repo=""
+    )
 
     logger.info(
         f"Start prepare release",
@@ -99,14 +104,23 @@ def prepare_release(
                 headless_image_tag = f"git-{commit}"
             elif repo == DP_REPO:
                 dp_image_tag = f"git-{commit}"
-        try:
-            COPY_MACHINE[PROJECT_NAME_MAP[repo]](
-                apv=apv,
-                commit=commit,
-                network=network,
-                prefix=bucket_prefix,
-                dry_run=dry_run,
-            )
+
+        if repo == PLAYER_REPO or repo == LAUNCHER_REPO:
+            with tempfile.TemporaryDirectory() as tmp_path:
+                copy_machine: Union[PlayerCopyMachine, LauncherCopyMachine]
+                if repo == PLAYER_REPO:
+                    copy_machine = PlayerCopyMachine(tmp_path, "player")
+                elif repo == LAUNCHER_REPO:
+                    copy_machine = LauncherCopyMachine(tmp_path, "launcher")
+                copy_machine.os_list = ["Windows"]
+                copy_machine.run(
+                    commit,
+                    bucket_prefix,
+                    network,
+                    apv,
+                    dry_run=dry_run,
+                    signing=signing,
+                )
             logger.info(f"Finish copy", repo=repo)
 
             download_url = build_download_url(
@@ -122,12 +136,6 @@ def prepare_release(
                     slack_channel,
                     f"[CI] Prepared binary - {download_url}",
                 )
-
-        except KeyError:
-            pass
-
-    logger.info(f"APV: {apv.raw}")
-    logger.info(f"Image: {headless_image_tag}")
 
     if slack_channel:
         slack.send_msg(
@@ -162,7 +170,9 @@ def create_apv(
         except KeyError:
             pass
 
-    extra = generate_extra(commit_map, apvIncreaseRequired, prev_apv_detail.extra)
+    extra = generate_extra(
+        commit_map, apvIncreaseRequired, prev_apv_detail.extra
+    )
     apv = planet.apv_sign(
         apv_version,
         **extra,
