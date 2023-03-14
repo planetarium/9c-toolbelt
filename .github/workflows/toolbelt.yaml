@@ -1,0 +1,66 @@
+name: Prepare Release
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        required: true
+        description: 'Release network environment'
+        default: 'internal'
+        type: choice
+        options:
+        - main
+        - internal
+      rc-number:
+        required: true
+        description: 'Rc number (e.g. 100310)'
+      deploy-number:
+        required: true
+        description: 'Deploy number (e.g. 1)'
+      signing:
+        description: 'Code signing'
+        default: 'false'
+        type: choice
+        options:
+        - true
+        - false
+      launcher-commit:
+        description: 'Specific launcher commit'
+      player-commit:
+        description: 'Specific player commit'
+
+
+concurrency:
+  group: prepare-release
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-20.04
+    environment:
+      name: ${{ github.event.inputs.network }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Prepare Release
+        uses: ./
+        env:
+          ENV: test
+          GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          KEY_PASSPHRASE: ${{ secrets.KEY_PASSPHRASE }}
+          KEY_ADDRESS: ${{ secrets.KEY_ADDRESS }}
+          KEY_PRIVATE: ${{ secrets.KEY_PRIVATE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          ESIGNER_CREDENTIAL_ID: ${{ secrets.ESIGNER_CREDENTIAL_ID }}
+          ESIGNER_USERNAME: ${{ secrets.ESIGNER_USERNAME }}
+          ESIGNER_PASSWORD: ${{ secrets.ESIGNER_PASSWORD }}
+          ESIGNER_TOTP_SECRET: ${{ secrets.ESIGNER_TOTP_SECRET }}
+        with:
+          COMMAND: prepare
+          slack_channel: ${{ secrets.SLACK_CHANNEL }}
+          network: ${{ github.event.inputs.network }}
+          rc_number: ${{ github.event.inputs.rc-number }}
+          deploy_number: ${{ github.event.inputs.deploy-number }}
+          launcher_commit: ${{ github.event.inputs.launcher-commit }}
+          player_commit: ${{ github.event.inputs.player-commit }}
+          signing: ${{github.event.inputs.signing}}
