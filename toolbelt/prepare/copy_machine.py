@@ -3,6 +3,7 @@ import tempfile
 from typing import Dict, Literal, Optional
 
 import structlog
+import shutil
 
 from toolbelt.config import config
 from toolbelt.constants import LINUX, MAC, WIN
@@ -64,6 +65,7 @@ class CopyMachine:
                             network=network,
                             apv=apv,
                         )
+                    shutil.rmtree(tmp_path)
             except Exception:
                 if target_os in self.required_os_list:
                     raise
