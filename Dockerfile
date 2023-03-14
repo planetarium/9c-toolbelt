@@ -26,7 +26,6 @@ RUN apt-get update && \
 RUN curl https://www.ssl.com/download/codesigntool-for-linux-and-macos/ -o /tmp/CodeSignTool.zip && \
     unzip "/tmp/CodeSignTool.zip" -d "/tmp" && \
     rm "/tmp/CodeSignTool.zip" && \
-    mkdir /codesign && \
     mv "/tmp/CodeSignTool-v1.2.7" "/codesign" && \
     chmod +x "/codesign/CodeSignTool.sh" && ln -s "/codesign/CodeSignTool.sh" "/usr/bin/codesign"
 
