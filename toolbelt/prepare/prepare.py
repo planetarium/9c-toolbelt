@@ -112,7 +112,6 @@ def prepare_release(
                     copy_machine = PlayerCopyMachine(tmp_path, "player")
                 elif repo == LAUNCHER_REPO:
                     copy_machine = LauncherCopyMachine(tmp_path, "launcher")
-                copy_machine.os_list = ["Windows"]
                 copy_machine.run(
                     commit,
                     bucket_prefix,
