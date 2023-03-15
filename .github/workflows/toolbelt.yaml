@@ -40,8 +40,9 @@ jobs:
 
       - name: free disk space
         run: |
-          sudo swapoff /swapfile
-          sudo rm -rf /swapfile /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
           df -h
 
       - name: Prepare Release
