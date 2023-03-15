@@ -59,7 +59,9 @@ class CopyMachine:
                             self.base_dir,
                             self.app,
                         )
-                        logger.info("Finish signing", os=target_os, app=self.app)
+                        logger.info(
+                            "Finish signing", os=target_os, app=self.app
+                        )
                 if not dry_run:
                     self.upload(
                         target_os,
@@ -108,8 +110,10 @@ def signing_for_windows(
     dir: str,
     target_app: Literal["player", "launcher"],
 ):
+    check_storage(1)
     # 1. Extract binary
     extract_path = extract(dir, binary_path, use7z=False)
+    check_storage(2)
 
     # 2. Move exe files
     input_dir = os.path.join(dir, "temp_input")
@@ -160,5 +164,16 @@ def signing_for_windows(
 
     # 5. Compress
     result_path = compress(dir, extract_path, binary_path, use7z=False)
+    check_storage(3)
 
     return result_path
+
+
+def check_storage(number):
+    import subprocess
+
+    print(
+        f"{number}: ",
+        subprocess.run(["df", "-h"], capture_output=True, text=True),
+        "\n",
+    )
