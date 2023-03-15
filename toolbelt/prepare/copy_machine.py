@@ -66,6 +66,7 @@ class CopyMachine:
                         apv=apv,
                     )
                 shutil.rmtree(self.base_dir)
+                os.mkdir("./tmp")
             except Exception:
                 if target_os in self.required_os_list:
                     raise
