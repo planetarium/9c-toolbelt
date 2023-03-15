@@ -38,6 +38,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: free disk space
+        run: |
+          sudo swapoff /swapfile
+          sudo rm -rf /swapfile /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          df -h
+
       - name: Prepare Release
         uses: ./
         env:
