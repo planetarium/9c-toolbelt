@@ -41,31 +41,31 @@ class CopyMachine:
         dry_run: bool = False,
         signing: bool = False,
     ):
+        os.mkdir("./tmp")
+        self.base_dir = "./tmp"
+
         for target_os in self.os_list:
             try:
-                with tempfile.TemporaryDirectory() as tmp_path:
-                    self.base_dir = tmp_path
-
-                    self.download(target_os, commit)
-                    self.preprocessing(target_os, network=network, apv=apv)
-                    if signing:
-                        if target_os == WIN:
-                            signing_for_windows(
-                                Esigner(),
-                                self.dir_map[WIN]["binary"],
-                                self.base_dir,
-                                self.app,
-                            )
-                            logger.info("Finish signing", os=target_os, app=self.app)
-                    if not dry_run:
-                        self.upload(
-                            target_os,
-                            commit=commit,
-                            s3_prefix=bucket_prefix,
-                            network=network,
-                            apv=apv,
+                self.download(target_os, commit)
+                self.preprocessing(target_os, network=network, apv=apv)
+                if signing:
+                    if target_os == WIN:
+                        signing_for_windows(
+                            Esigner(),
+                            self.dir_map[WIN]["binary"],
+                            self.base_dir,
+                            self.app,
                         )
-                    shutil.rmtree(tmp_path)
+                        logger.info("Finish signing", os=target_os, app=self.app)
+                if not dry_run:
+                    self.upload(
+                        target_os,
+                        commit=commit,
+                        s3_prefix=bucket_prefix,
+                        network=network,
+                        apv=apv,
+                    )
+                shutil.rmtree(self.base_dir)
             except Exception:
                 if target_os in self.required_os_list:
                     raise
