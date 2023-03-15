@@ -40,10 +40,6 @@ jobs:
 
       - name: free disk space
         run: |
-          sudo swapoff -a
-          sudo rm -f /swapfile
-          sudo apt clean
-          docker system prune -a --force --volumes
           df -h
 
       - name: Prepare Release
