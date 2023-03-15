@@ -41,11 +41,14 @@ class CopyMachine:
         dry_run: bool = False,
         signing: bool = False,
     ):
-        os.mkdir("./tmp")
         self.base_dir = "./tmp"
 
         for target_os in self.os_list:
             try:
+                try:
+                    os.mkdir("./tmp")
+                except FileExistsError:
+                    pass
                 self.download(target_os, commit)
                 self.preprocessing(target_os, network=network, apv=apv)
                 if signing:
@@ -66,7 +69,6 @@ class CopyMachine:
                         apv=apv,
                     )
                 shutil.rmtree(self.base_dir)
-                os.mkdir("./tmp")
             except Exception:
                 if target_os in self.required_os_list:
                     raise
