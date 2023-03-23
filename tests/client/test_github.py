@@ -3,7 +3,7 @@ import base64
 from tests.testdata import read_file_as_json
 from toolbelt.client import GithubClient
 
-from .constants import *
+from tests.path import *
 
 repo = "9c-k8s-config"
 org = "planetarium"

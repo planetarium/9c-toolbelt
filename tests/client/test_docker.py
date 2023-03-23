@@ -1,6 +1,6 @@
 from toolbelt.client import DockerClient
 from tests.testdata import read_file_as_json
-from .constants import *
+from tests.path import *
 
 namespace = "planetariumhq"
 repo = "ninechronicles-headless"
