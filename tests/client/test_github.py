@@ -1,9 +1,8 @@
 import base64
 
+from tests.path import *
 from tests.testdata import read_file_as_json
 from toolbelt.client import GithubClient
-
-from tests.path import *
 
 repo = "9c-k8s-config"
 org = "planetarium"
@@ -78,9 +77,7 @@ def test_get_ref(requests_mock):
 
     response = client.get_ref(ref)
 
-    assert (
-        response["object"]["sha"] == "aa218f56b14c9653891f9e74264a383fa43fefbd"
-    )
+    assert response["object"]["sha"] == "aa218f56b14c9653891f9e74264a383fa43fefbd"
 
 
 def test_create_ref(requests_mock):
@@ -95,9 +92,7 @@ def test_create_ref(requests_mock):
         "refs/heads/main", "aa218f56b14c9653891f9e74264a383fa43fefbd"
     )
 
-    assert (
-        response["object"]["sha"] == "aa218f56b14c9653891f9e74264a383fa43fefbd"
-    )
+    assert response["object"]["sha"] == "aa218f56b14c9653891f9e74264a383fa43fefbd"
 
 
 def test_create_pull(requests_mock):
@@ -108,9 +103,7 @@ def test_create_pull(requests_mock):
         json=read_file_as_json(CREATE_PULL_RESPONSE_PATH),
     )
 
-    response = client.create_pull(
-        title="test", body="test", head="test", base="test"
-    )
+    response = client.create_pull(title="test", body="test", head="test", base="test")
 
     assert response
 

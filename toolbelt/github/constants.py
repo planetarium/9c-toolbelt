@@ -6,5 +6,6 @@ HEADLESS_REPO = "NineChronicles.Headless"
 DP_REPO = "NineChronicles.DataProvider"
 SEED_REPO = "libplanet-seed"
 LIBPLANET_REPO = "libplanet"
+WORLD_BOSS_REPO = "world-boss-service"
 
 GITHUB_ORG = "planetarium"

@@ -1,6 +1,6 @@
-from toolbelt.client import DockerClient
-from tests.testdata import read_file_as_json
 from tests.path import *
+from tests.testdata import read_file_as_json
+from toolbelt.client import DockerClient
 
 namespace = "planetariumhq"
 repo = "ninechronicles-headless"

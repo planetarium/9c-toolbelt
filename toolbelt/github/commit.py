@@ -6,7 +6,23 @@ from toolbelt.client.github import GithubClient
 from toolbelt.types import Network, RepoInfos
 from toolbelt.utils.parse import latest_tag
 
+from .exceptions import TagNotFoundError
+
 logger = structlog.get_logger(__name__)
+
+
+def get_latest_commit_hash(
+    github_client: GithubClient, ref_name: str, ref_value: str
+) -> str:
+    func_map = {
+        "tag": get_latest_commit_hash_from_tag,
+        "branch": get_latest_commit_hash_from_branch,
+    }
+
+    try:
+        return func_map[ref_name](github_client, ref_value)
+    except KeyError:
+        raise KeyError(f"ref_name must be either a tag or a branch, not {ref_name}")
 
 
 def get_latest_commit_hash_from_branch(
@@ -15,6 +31,16 @@ def get_latest_commit_hash_from_branch(
     ref = f"heads/{branch}"
     r = github_client.get_ref(ref)
     return r["object"]["sha"]
+
+
+def get_latest_commit_hash_from_tag(
+    github_client: GithubClient, tag: str
+) -> str:
+    for tags_info in github_client.get_tags(per_page=100):
+        for tag_info in tags_info:
+            if tag_info["name"] == tag:
+                return tag_info["commit"]["sha"]
+    raise TagNotFoundError(f"Tag '{tag}' not found.")
 
 
 def get_latest_commits(
