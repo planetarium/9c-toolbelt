@@ -320,3 +320,6 @@ $RECYCLE.BIN/
 
 ### output
 toolbelt/output/*
+
+### Esigner
+logs/*

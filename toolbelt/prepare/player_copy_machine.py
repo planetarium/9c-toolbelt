@@ -6,10 +6,12 @@ import structlog
 from toolbelt.client import GithubClient
 from toolbelt.client.aws import S3File
 from toolbelt.config import config
-from toolbelt.constants import (
-    BINARY_FILENAME_MAP,
+from toolbelt.github.constants import (
     GITHUB_ORG,
     PLAYER_REPO,
+)
+from toolbelt.constants import (
+    BINARY_FILENAME_MAP,
     RELEASE_BUCKET,
 )
 from toolbelt.github.workflow import get_artifact_urls
@@ -84,7 +86,9 @@ class PlayerCopyMachine(CopyMachine):
             extract_path=extract_path,
         )
 
-        binary_path = os.path.join(extract_path, BINARY_FILENAME_MAP[target_os])
+        binary_path = os.path.join(
+            extract_path, BINARY_FILENAME_MAP[target_os]
+        )
 
         self.dir_map[target_os]["binary"] = binary_path
         self.dir_map[target_os].pop("downloaded")
@@ -132,7 +136,9 @@ class PlayerCopyMachine(CopyMachine):
         os.remove(self.dir_map[target_os]["binary"])
 
 
-def download_from_github(github_client: GithubClient, url: str, filename: str, dir: str):
+def download_from_github(
+    github_client: GithubClient, url: str, filename: str, dir: str
+):
     """
     Download a file from a URL and save it to a file
 
