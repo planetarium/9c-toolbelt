@@ -9,7 +9,7 @@ k8s_app = typer.Typer()
 
 
 @k8s_app.command()
-def update_images(
+def update_values(
     file_path_at_github: str = typer.Argument(
         ..., help="e.g. 9c-infra/9c-main/chart/values.yaml"
     ),
@@ -26,4 +26,4 @@ def update_images(
     ValuesFileUpdater().update(file_path_at_github, image_sources)
 
 
-__all__ = ["prepare_app", "get_apv"]
+__all__ = ["update_values", "get_apv"]

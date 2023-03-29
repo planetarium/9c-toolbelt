@@ -1,11 +1,8 @@
-import os
-
 import typer
-import yaml
 
+from toolbelt.apps.k8s import get_apv
 from toolbelt.constants import MAIN_CONFIG_PATH
-from toolbelt.k8s import get_apv
-from toolbelt.planet import Planet
+from toolbelt.tools.planet import Planet
 
 from .release_infos import update_latest, update_root_config
 

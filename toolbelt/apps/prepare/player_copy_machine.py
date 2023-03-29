@@ -9,7 +9,7 @@ from toolbelt.config import config
 from toolbelt.constants import BINARY_FILENAME_MAP, RELEASE_BUCKET
 from toolbelt.github.constants import GITHUB_ORG, PLAYER_REPO
 from toolbelt.github.workflow import get_artifact_urls
-from toolbelt.planet import Apv
+from toolbelt.tools.planet import Apv
 from toolbelt.types import Network
 from toolbelt.utils.url import build_s3_url
 from toolbelt.utils.zip import extract as extract_player

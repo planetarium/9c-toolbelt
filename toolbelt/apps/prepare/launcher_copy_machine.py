@@ -6,7 +6,7 @@ import structlog
 
 from toolbelt.client.aws import S3File
 from toolbelt.constants import BINARY_FILENAME_MAP, LINUX, MAC, RELEASE_BUCKET, WIN
-from toolbelt.planet.apv import Apv
+from toolbelt.tools.planet.apv import Apv
 from toolbelt.types import Network
 from toolbelt.utils.url import build_s3_url
 from toolbelt.utils.zip import compress as compress_launcher
