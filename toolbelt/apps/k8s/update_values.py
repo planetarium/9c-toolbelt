@@ -1,8 +1,9 @@
 from time import time
 from typing import List, Tuple
 
+from tempfile import TemporaryFile
+from ruamel.yaml import YAML
 import structlog
-import yaml
 
 from toolbelt.client import GithubClient
 from toolbelt.config import config
@@ -187,8 +188,14 @@ def update_image_tag(contents: str, *, repo_to_change: str, tag_to_change: str):
             for item in data:
                 update_tag_recursively(item)
 
-    doc = yaml.safe_load(contents)
+    yaml = YAML()
+    yaml.preserve_quotes = True  # type:ignore
+    doc = yaml.load(contents)
     update_tag_recursively(doc)
-    new_doc = yaml.safe_dump(doc, sort_keys=False)
+
+    with TemporaryFile(mode="w+") as fp:
+        yaml.dump(doc, fp)
+        fp.seek(0)
+        new_doc = fp.read()
 
     return new_doc
