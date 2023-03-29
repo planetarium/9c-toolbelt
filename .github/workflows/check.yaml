@@ -18,7 +18,7 @@ jobs:
           dotnet-version: "6.0.x"
       - run: dotnet tool install -g Libplanet.Tools
       - run: |
-          python -m pip install -r requirements-dev.txt
+          python -m pip install -r requirements.txt
           flit install --extras test
         name: install dependencies
       - run: planet key import --passphrase "test" "97548c4d920d07934c19fc012793cff0cb4a9da7c8986d971fcb4759ae31364b"
