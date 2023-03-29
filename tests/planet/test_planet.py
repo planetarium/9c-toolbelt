@@ -1,7 +1,7 @@
 import pytest
 
 from toolbelt.exceptions import PlanetError
-from toolbelt.planet import Apv, Planet
+from toolbelt.tools.planet import Apv, Planet
 
 PASSPHRASE = "test"
 PRIVATE_KEY = "97548c4d920d07934c19fc012793cff0cb4a9da7c8986d971fcb4759ae31364b"

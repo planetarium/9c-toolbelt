@@ -3,6 +3,7 @@ from typing import Dict, Optional, Union
 
 import structlog
 
+from toolbelt.apps.k8s.apv import get_apv
 from toolbelt.client import GithubClient, SlackClient
 from toolbelt.config import config
 from toolbelt.constants import INTERNAL_CONFIG_PATH, MAIN_CONFIG_PATH, RELEASE_BASE_URL
@@ -13,12 +14,11 @@ from toolbelt.github.constants import (
     PLAYER_REPO,
     SEED_REPO,
 )
-from toolbelt.k8s.apv import get_apv
-from toolbelt.planet import Apv, Planet, generate_extra
+from toolbelt.github.repos import get_latest_commits
+from toolbelt.tools.planet import Apv, Planet, generate_extra
 from toolbelt.types import Network, RepoInfos
 from toolbelt.utils.url import build_download_url
 
-from ..github.repos import get_latest_commits
 from .launcher_copy_machine import LauncherCopyMachine
 from .player_copy_machine import PlayerCopyMachine
 

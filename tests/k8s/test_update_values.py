@@ -7,7 +7,7 @@ from tests.path import (
     VALUES_FILE_PATH,
 )
 from tests.testdata import read_file
-from toolbelt.k8s.update_values import (
+from toolbelt.apps.k8s.update_values import (
     ImageMetadata,
     extract_image_metadata,
     update_image_tag,

@@ -6,8 +6,8 @@ import structlog
 
 from toolbelt.config import config
 from toolbelt.constants import LINUX, MAC, WIN
-from toolbelt.esigner import Esigner
-from toolbelt.planet import Apv
+from toolbelt.tools.esigner import Esigner
+from toolbelt.tools.planet import Apv
 from toolbelt.types import Network
 from toolbelt.utils.zip import compress, extract
 
