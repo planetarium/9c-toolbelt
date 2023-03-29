@@ -1,6 +1,7 @@
 import structlog
 
 from toolbelt.client import DockerClient
+
 from .constants import DOCKERHUB_ORG
 
 logger = structlog.get_logger(__name__)

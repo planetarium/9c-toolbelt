@@ -5,13 +5,10 @@ import pytest
 
 from tests.constants import DATA_DIR
 
-
 SLACK_DIR = os.path.join("client", "slack")
 
 FAILURE_RESPONSE_PATH = os.path.join(SLACK_DIR, "failureResponse.json")
-POST_MESSAGE_RESPONSE_PATH = os.path.join(
-    SLACK_DIR, "postMessageResponse.json"
-)
+POST_MESSAGE_RESPONSE_PATH = os.path.join(SLACK_DIR, "postMessageResponse.json")
 
 
 GITHUB_DIR = os.path.join("client", "github")
@@ -25,9 +22,7 @@ UPDATE_CONTENT_RESPONSE_PATH = os.path.join(GITHUB_DIR, "update_content.json")
 
 
 DOCKER_DIR = os.path.join("client", "docker")
-CHECK_IMAGE_EXISTS_RESPONSE_PATH = os.path.join(
-    DOCKER_DIR, "check_image_exists.json"
-)
+CHECK_IMAGE_EXISTS_RESPONSE_PATH = os.path.join(DOCKER_DIR, "check_image_exists.json")
 
 K8S_DIR = os.path.join("k8s", "values")
 VALUES_FILE_PATH = os.path.join(K8S_DIR, "sample_values.yaml")

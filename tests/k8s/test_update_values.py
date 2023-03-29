@@ -1,8 +1,8 @@
 import pytest
 
 from tests.path import (
-    HEADLESS_VALUES_FILE_PATH,
     DP_VALUES_FILE_PATH,
+    HEADLESS_VALUES_FILE_PATH,
     SEED_VALUES_FILE_PATH,
     VALUES_FILE_PATH,
 )
@@ -52,9 +52,7 @@ def test_extract_image_metadata(input: str, expect_result: ImageMetadata):
         ),
     ],
 )
-def test_patch_values_file(
-    expect_result_file_path, repo_to_change, tag_to_change
-):
+def test_patch_values_file(expect_result_file_path, repo_to_change, tag_to_change):
     input = read_file(VALUES_FILE_PATH)
     expect_result = read_file(expect_result_file_path)
 

@@ -3,7 +3,7 @@ from typing import List
 import typer
 
 from .apv import get_apv
-from .update_values import update_images_of_values_file
+from .update_values import ValuesFileUpdater
 
 k8s_app = typer.Typer()
 
@@ -23,7 +23,7 @@ def update_images(
 
     """
 
-    update_images_of_values_file(file_path_at_github, image_sources)
+    ValuesFileUpdater().update(file_path_at_github, image_sources)
 
 
 __all__ = ["prepare_app", "get_apv"]
