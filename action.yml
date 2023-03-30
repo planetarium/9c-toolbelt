@@ -1,24 +1,9 @@
 name: Release
 description: "Release"
 inputs:
-  COMMAND:
+  COMMAND_LIST:
     description: 'command argument'
     required: true
-  network:
-    description: 'Release network environment'
-    default: 'internal'
-  rc_number:
-    description: 'Rc number (e.g. 100310)'
-    required: true
-  deploy_number:
-    description: 'Deploy number (e.g. 1)'
-    required: true
-  launcher_commit:
-    description: 'Specific launcher commit'
-  player_commit:
-    description: 'Specific player commit'
-  signing:
-    default: 'false'
   ENV:
     description: 'Environment'
     default: 'test'
@@ -49,14 +34,8 @@ inputs:
 runs:
   using: 'docker'
   env:
+    COMMAND_LIST: ${{ inputs.COMMAND_LIST }}
     ENV: ${{ inputs.ENV }}
-    COMMAND: ${{ inputs.COMMAND }}
-    NETWORK: ${{ inputs.network }}
-    RC_NUMBER: ${{ inputs.rc_number }}
-    DEPLOY_NUMBER: ${{ inputs.deploy_number }}
-    LAUNCHER_COMMIT: ${{ inputs.launcher_commit }}
-    PLAYER_COMMIT: ${{ inputs.player_commit }}
-    SIGNING: ${{ inputs.signing }}
     GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
     SLACK_TOKEN: ${{ inputs.SLACK_TOKEN }}
     SLACK_CHANNEL: ${{ inputs.SLACK_CHANNEL }}
