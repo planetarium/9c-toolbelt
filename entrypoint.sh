@@ -7,7 +7,9 @@ echo $COMMAND_LIST
 pip3 freeze
 . /toolbelt/.venv/bin/activate
 
-planet key import --passphrase $KEY_PASSPHRASE $KEY_PRIVATE
+if [[ $KEY_PRIVATE ]]; then
+  planet key import --passphrase $KEY_PASSPHRASE $KEY_PRIVATE
+fi
 
 for cmd in $COMMAND_LIST
 do
