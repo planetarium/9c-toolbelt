@@ -13,5 +13,5 @@ fi
 
 for cmd in $COMMAND_LIST
 do
-  python3 /toolbelt/cli.py $cmd
+  python3 /toolbelt/cli.py $cmd | sed -e "s/^'//" -e "s/'$//"
 done
