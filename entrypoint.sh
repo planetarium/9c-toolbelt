@@ -14,7 +14,6 @@ fi
 
 for cmd in $COMMAND_LIST
 do
-  IFS=$IFS_OLD
-  python3 /toolbelt/cli.py `echo "$cmd" | tr -d "'"`
-  IFS=$'\n'
+  cmd_args=(`echo $cmd | tr "|" "\n"`)
+  python3 /toolbelt/cli.py ${cmd_args[@]}
 done
