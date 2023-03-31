@@ -30,7 +30,13 @@ class ValuesFileUpdater:
             config.github_token, org=GITHUB_ORG, repo=HEADLESS_REPO
         )
 
-    def update(self, file_path_at_github: str, image_sources: List[str]):
+    def update(
+        self,
+        file_path_at_github: str,
+        image_sources: List[str],
+        *,
+        bump_apv: bool = True,
+    ):
         target_github_repo, file_path = file_path_at_github.split("/", 1)
         new_branch = f"update-{file_path.split('/')[0]}-values-{int(time())}"
 
@@ -42,7 +48,9 @@ class ValuesFileUpdater:
         result_values_file = remote_values_file_contents
 
         for image_source in image_sources:
-            docker_repo, ref_name, ref_value = extract_image_metadata(image_source)
+            docker_repo, ref_name, ref_value = extract_image_metadata(
+                image_source
+            )
             github_repo = dockerhub2github_repo(docker_repo)
             image_tag = self._get_image_tag(
                 github_repo=github_repo,
@@ -70,18 +78,24 @@ class ValuesFileUpdater:
         )
         logger.info("PR Created")
 
-    def _init_github_ref(self, *, target_github_repo: str, branch: str, file_path: str):
+    def _init_github_ref(
+        self, *, target_github_repo: str, branch: str, file_path: str
+    ):
         self.github_client.repo = target_github_repo
         head = self.github_client.get_ref(f"heads/main")
         logger.debug("Prev main branch ref", head_sha=head["object"]["sha"])
 
-        self.github_client.create_ref(f"refs/heads/{branch}", head["object"]["sha"])
+        self.github_client.create_ref(
+            f"refs/heads/{branch}", head["object"]["sha"]
+        )
         logger.debug("Branch created", branch=branch)
 
         main_branch_file_contents, response = self.github_client.get_content(
             file_path, "main"
         )
-        logger.debug("Prev values.yaml contents", content=main_branch_file_contents)
+        logger.debug(
+            "Prev values.yaml contents", content=main_branch_file_contents
+        )
 
         if main_branch_file_contents is None:
             raise
@@ -132,7 +146,9 @@ class ValuesFileUpdater:
             ref_value=ref_value,
         )
         if ref_name == "branch":
-            commit_hash = get_latest_commit_hash(self.github_client, ref_name, ref_value)
+            commit_hash = get_latest_commit_hash(
+                self.github_client, ref_name, ref_value
+            )
             image_tag = build_commit_base_image_tag(commit_hash)
         elif ref_name == "commit":
             image_tag = build_commit_base_image_tag(ref_value)
@@ -152,7 +168,9 @@ class ValuesFileUpdater:
         return image_tag
 
 
-def extract_image_metadata(image_source: str, delimiter: str = "/") -> ImageMetadata:
+def extract_image_metadata(
+    image_source: str, delimiter: str = "/"
+) -> ImageMetadata:
     # Example input: ninechronicles-headless/from tag 1
 
     docker_repo, source = image_source.split(delimiter)
@@ -176,11 +194,16 @@ def dockerhub2github_repo(dockerhub_repo: str):
     return dockerhub2github_repo_map[dockerhub_repo]
 
 
-def update_image_tag(contents: str, *, repo_to_change: str, tag_to_change: str):
+def update_image_tag(
+    contents: str, *, repo_to_change: str, tag_to_change: str
+):
     def update_tag_recursively(data):
         if isinstance(data, dict):
             for key, value in data.items():
-                if key == "repository" and f"{DOCKERHUB_ORG}/{repo_to_change}" in value:
+                if (
+                    key == "repository"
+                    and f"{DOCKERHUB_ORG}/{repo_to_change}" in value
+                ):
                     data["tag"] = tag_to_change
                 else:
                     update_tag_recursively(value)
