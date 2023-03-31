@@ -5,8 +5,8 @@ from toolbelt.constants import MAIN_CONFIG_PATH
 from toolbelt.tools.planet import Planet
 from toolbelt.utils.typer import network_arg
 
-from .release_infos import update_latest, update_root_config
 from .apv import update_apv_history
+from .release_infos import update_latest, update_root_config
 
 update_app = typer.Typer()
 

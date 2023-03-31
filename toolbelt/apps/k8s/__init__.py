@@ -17,7 +17,7 @@ def update_values(
         ...,
         help="Just you send separated strings (e.g. 'ninechronicles-headless/from tag 1', 'ninechronicles-dataprovider/from branch main', 'world-boss-service/from branch development')",
     ),
-    bump_apv: bool = True
+    bump_apv: bool = True,
 ):
     """
     Update images like headless, data-provider, seed...

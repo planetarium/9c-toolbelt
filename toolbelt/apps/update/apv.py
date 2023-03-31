@@ -26,10 +26,8 @@ def update_apv_history(number: int, network: Network):
         timestamp=apv.extra["timestamp"],
     )
 
-    exists_history_contents = remote_config_manager.download_apv_history(
-        network
-    )
-    exists_history_contents[str(number)] = detail
+    exists_history_contents = remote_config_manager.download_apv_history(network)
+    exists_history_contents[number] = detail
 
     remote_config_manager.upload_apv_history(network, exists_history_contents)
 

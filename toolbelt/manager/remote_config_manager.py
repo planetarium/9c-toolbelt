@@ -1,4 +1,5 @@
 import json
+
 from botocore.exceptions import ClientError
 
 from toolbelt.client.new_aws import S3Client
@@ -26,9 +27,7 @@ class RemoteConfigManager:
         return exists_history_contents
 
     def upload_apv_history(self, network: Network, contents: str):
-        self.s3_client.upload(
-            json.dumps(contents), self.get_apv_history_path(network)
-        )
+        self.s3_client.upload(json.dumps(contents), self.get_apv_history_path(network))
 
     def get_apv_history_path(self, network: Network):
         file_path = f"{network}/{APV_HISTORY_FILE_NAME}"
