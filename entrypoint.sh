@@ -1,6 +1,7 @@
 #!/bin/bash
 set -ex
 
+IFS_OLD=$IFS
 IFS=$'\n'
 echo $COMMAND_LIST
 
@@ -13,5 +14,6 @@ fi
 
 for cmd in $COMMAND_LIST
 do
-  python3 /toolbelt/cli.py $cmd
+  cmd_args=(`echo $cmd | tr "|" "\n"`)
+  python3 /toolbelt/cli.py ${cmd_args[@]}
 done
