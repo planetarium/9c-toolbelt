@@ -17,13 +17,14 @@ def update_values(
         ...,
         help="Just you send separated strings (e.g. 'ninechronicles-headless/from tag 1', 'ninechronicles-dataprovider/from branch main', 'world-boss-service/from branch development')",
     ),
+    bump_apv: bool = True,
 ):
     """
     Update images like headless, data-provider, seed...
 
     """
 
-    ValuesFileUpdater().update(file_path_at_github, image_sources)
+    ValuesFileUpdater().update(file_path_at_github, image_sources, bump_apv=bump_apv)
 
 
 __all__ = ["update_values", "get_apv"]

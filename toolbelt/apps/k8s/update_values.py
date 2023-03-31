@@ -1,22 +1,18 @@
+from tempfile import TemporaryFile
 from time import time
 from typing import List, Tuple
 
-from tempfile import TemporaryFile
-from ruamel.yaml import YAML
 import structlog
+from ruamel.yaml import YAML
 
 from toolbelt.client import GithubClient
 from toolbelt.config import config
 from toolbelt.dockerhub.constants import DOCKERHUB_ORG
 from toolbelt.dockerhub.image import check_image_exists
 from toolbelt.github import get_latest_commit_hash
-from toolbelt.github.constants import (
-    DP_REPO,
-    GITHUB_ORG,
-    HEADLESS_REPO,
-    SEED_REPO,
-    WORLD_BOSS_REPO,
-)
+from toolbelt.github.constants import GITHUB_ORG, HEADLESS_REPO
+from toolbelt.manager import RemoteConfigManager
+from toolbelt.utils.converter import dockerhub2github_repo, infra_dir2network
 
 ImageMetadata = Tuple[str, str, str]
 
@@ -30,9 +26,16 @@ class ValuesFileUpdater:
             config.github_token, org=GITHUB_ORG, repo=HEADLESS_REPO
         )
 
-    def update(self, file_path_at_github: str, image_sources: List[str]):
+    def update(
+        self,
+        file_path_at_github: str,
+        image_sources: List[str],
+        *,
+        bump_apv: bool = True,
+    ):
         target_github_repo, file_path = file_path_at_github.split("/", 1)
-        new_branch = f"update-{file_path.split('/')[0]}-values-{int(time())}"
+        infra_dir = file_path.split("/")[0]
+        new_branch = f"update-{infra_dir}-values-{int(time())}"
 
         remote_values_file_contents, contents_response = self._init_github_ref(
             target_github_repo=target_github_repo,
@@ -40,6 +43,12 @@ class ValuesFileUpdater:
             file_path=file_path,
         )
         result_values_file = remote_values_file_contents
+
+        if bump_apv:
+            latest_apv = self._get_latest_apv(infra_dir)
+            logger.debug("Latest apv", apv=latest_apv)
+            result_values_file = update_apv(result_values_file, latest_apv)
+            logger.info("APV updated", apv=latest_apv)
 
         for image_source in image_sources:
             docker_repo, ref_name, ref_value = extract_image_metadata(image_source)
@@ -151,6 +160,16 @@ class ValuesFileUpdater:
 
         return image_tag
 
+    def _get_latest_apv(self, infra_dir: str):
+        remote_config_manager = RemoteConfigManager()
+        network = infra_dir2network(infra_dir)
+
+        apv_history = remote_config_manager.download_apv_history(network)
+        keys = apv_history.keys()
+        sorted_keys = sorted(keys, reverse=True)
+
+        return apv_history[sorted_keys[0]]["raw"]
+
 
 def extract_image_metadata(image_source: str, delimiter: str = "/") -> ImageMetadata:
     # Example input: ninechronicles-headless/from tag 1
@@ -162,18 +181,6 @@ def extract_image_metadata(image_source: str, delimiter: str = "/") -> ImageMeta
 
 def build_commit_base_image_tag(commit_hash: str):
     return f"{COMMIT_BASE_TAG_PREFIX}{commit_hash}"
-
-
-def dockerhub2github_repo(dockerhub_repo: str):
-    dockerhub2github_repo_map = {
-        "ninechronicles-headless": HEADLESS_REPO,
-        "ninechronicles-dataprovider": DP_REPO,
-        "libplanet-seed": SEED_REPO,
-        # "nine-chronicles-bridge-observer": BRIDGE_OBSERVER_REPO,
-        "world-boss-service": WORLD_BOSS_REPO,
-    }
-
-    return dockerhub2github_repo_map[dockerhub_repo]
 
 
 def update_image_tag(contents: str, *, repo_to_change: str, tag_to_change: str):
@@ -192,6 +199,20 @@ def update_image_tag(contents: str, *, repo_to_change: str, tag_to_change: str):
     yaml.preserve_quotes = True  # type:ignore
     doc = yaml.load(contents)
     update_tag_recursively(doc)
+
+    with TemporaryFile(mode="w+") as fp:
+        yaml.dump(doc, fp)
+        fp.seek(0)
+        new_doc = fp.read()
+
+    return new_doc
+
+
+def update_apv(contents: str, apv: str):
+    yaml = YAML()
+    yaml.preserve_quotes = True  # type:ignore
+    doc = yaml.load(contents)
+    doc["appProtocolVersion"] = apv
 
     with TemporaryFile(mode="w+") as fp:
         yaml.dump(doc, fp)
