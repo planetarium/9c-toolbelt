@@ -1,35 +1,23 @@
 from datetime import datetime
-from typing import TypedDict
+
+import structlog
 
 from toolbelt.config import config
-from toolbelt.manager import RemoteConfigManager
+from toolbelt.manager import APVHistoryManager
 from toolbelt.tools.planet import Apv, Planet
 from toolbelt.types import Network
 
-
-class ApvDetail(TypedDict):
-    number: int
-    signer: str
-    raw: str
-    timestamp: str
+logger = structlog.get_logger(__name__)
 
 
 def update_apv_history(number: int, network: Network):
     planet = Planet(config.key_address, config.key_passphrase)
-    remote_config_manager = RemoteConfigManager()
+    remote_config_manager = APVHistoryManager()
 
     apv = generate_apv(planet, number)
-    detail = ApvDetail(
-        number=number,
-        signer=apv.signer,
-        raw=apv.raw,
-        timestamp=apv.extra["timestamp"],
-    )
+    logger.info("APV Created", version=apv.version, signer=apv.signer)
 
-    exists_history_contents = remote_config_manager.download_apv_history(network)
-    exists_history_contents[number] = detail
-
-    remote_config_manager.upload_apv_history(network, exists_history_contents)
+    remote_config_manager.append_apv(apv, network)
 
 
 def generate_apv(planet: Planet, number: int) -> Apv:

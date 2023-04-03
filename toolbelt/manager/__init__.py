@@ -1,3 +1,3 @@
-from .remote_config_manager import RemoteConfigManager
+from .apv_history_manager import APVHistoryManager
 
-__all__ = ["RemoteConfigManager"]
+__all__ = ["APVHistoryManager"]

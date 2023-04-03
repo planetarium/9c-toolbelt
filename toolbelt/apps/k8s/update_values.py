@@ -11,7 +11,7 @@ from toolbelt.dockerhub.constants import DOCKERHUB_ORG
 from toolbelt.dockerhub.image import check_image_exists
 from toolbelt.github import get_latest_commit_hash
 from toolbelt.github.constants import GITHUB_ORG, HEADLESS_REPO
-from toolbelt.manager import RemoteConfigManager
+from toolbelt.manager import APVHistoryManager
 from toolbelt.utils.converter import dockerhub2github_repo, infra_dir2network
 
 ImageMetadata = Tuple[str, str, str]
@@ -161,10 +161,10 @@ class ValuesFileUpdater:
         return image_tag
 
     def _get_latest_apv(self, infra_dir: str):
-        remote_config_manager = RemoteConfigManager()
+        config_manager = APVHistoryManager()
         network = infra_dir2network(infra_dir)
 
-        apv_history = remote_config_manager.download_apv_history(network)
+        apv_history = config_manager.download_apv_history(network)
         keys = apv_history.keys()
         sorted_keys = sorted(keys, reverse=True)
 
