@@ -1,10 +1,10 @@
-import json
-import os
-import tempfile
 import time
+from typing import List
 
 import boto3
-import botocore.exceptions
+
+DOWNLOAD_DISTRIBUTION_ID = "E1HPTSGY2RETN4"
+RELEASE_DISTRIBUTION_ID = "E3SBBH63NSNYX"
 
 
 class S3Client:
@@ -22,21 +22,18 @@ class S3Client:
         self.s3.put_object(Bucket=self.bucket_name, Key=path, Body=contents)
 
 
-def create_invalidation(path_list, distribution_id: str):
-    client = boto3.client("cloudfront")
-    distributions = client.list_distributions()
-    assert distribution_id in [
-        item["Id"] for item in distributions["DistributionList"]["Items"]
-    ]
+class CFClient:
+    def __init__(self):
+        self.cf = boto3.client("cloudfront")
 
-    items = [f"/{path}" for path in path_list]
-    # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/cloudfront.html#CloudFront.Client.create_invalidation
-    response = client.create_invalidation(
-        DistributionId=distribution_id,
-        InvalidationBatch={
-            "Paths": {"Quantity": len(items), "Items": items},
-            "CallerReference": str(time.time()).replace(".", ""),
-        },
-    )
+    def create_invalidation(self, path_list: List[str], distribution_id: str) -> str:
+        items = [f"/{path}" for path in path_list]
+        response = self.cf.create_invalidation(
+            DistributionId=distribution_id,
+            InvalidationBatch={
+                "Paths": {"Quantity": len(items), "Items": items},
+                "CallerReference": str(time.time()).replace(".", ""),
+            },
+        )
 
-    return response["Invalidation"]["Id"]
+        return response["Invalidation"]["Id"]
