@@ -1,5 +1,6 @@
 import json
 import time
+from typing import Callable
 
 import requests
 import structlog
@@ -41,7 +42,34 @@ class APVHistoryManager:
 
         logger.info("New apv_history file uploaded", path=file_path)
 
-        self._create_invalidation_with_retry(file_path, apv.version)
+        def check(contents: dict):
+            try:
+                contents[str(apv.version)]
+                return True
+            except KeyError:
+                return False
+
+        self._create_invalidation_with_retry(file_path, check)
+
+    def remove_apv(self, number: int, network: Network):
+        exists_history_contents = self.download_apv_history(network)
+        logger.debug("Exists apv_history file downloaded", network=network)
+
+        exists_history_contents.pop(str(number))
+
+        file_path = self._get_apv_history_path(network)
+        self._upload_apv_history(file_path, exists_history_contents)
+
+        logger.info("Apv removed", path=file_path)
+
+        def check(contents: dict):
+            try:
+                contents[str(number)]
+                return False
+            except KeyError:
+                return True
+
+        self._create_invalidation_with_retry(file_path, check)
 
     def download_apv_history(self, network: Network):
         try:
@@ -59,7 +87,9 @@ class APVHistoryManager:
     def _upload_apv_history(self, file_path: str, contents: str):
         self.s3_client.upload(json.dumps(contents), file_path)
 
-    def _create_invalidation_with_retry(self, file_path: str, number: int):
+    def _create_invalidation_with_retry(
+        self, file_path: str, check: Callable[[dict], bool]
+    ):
         for _ in range(10):
             self.cf_client.create_invalidation([file_path], RELEASE_DISTRIBUTION_ID)
             self.cf_client.create_invalidation([file_path], DOWNLOAD_DISTRIBUTION_ID)
@@ -67,11 +97,10 @@ class APVHistoryManager:
             r = requests.get(f"{RELEASE_BASE_URL}/{file_path}")
             apv_history_contents = r.json()
 
-            try:
-                apv_history_contents[str(number)]
-                logger.info("Invalidation created", path=file_path, number=number)
+            if check(apv_history_contents):
+                logger.info("Invalidation created", path=file_path)
                 break
-            except KeyError:
+            else:
                 logger.info("Not applied, retry", path=file_path, count=_)
                 time.sleep(60)
 

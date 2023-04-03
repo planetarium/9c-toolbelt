@@ -5,7 +5,8 @@ from toolbelt.constants import MAIN_CONFIG_PATH
 from toolbelt.tools.planet import Planet
 from toolbelt.utils.typer import network_arg
 
-from .apv import update_apv_history
+from .apv import append_apv as append_apv_history
+from .apv import remove_apv as remove_apv_history
 from .release_infos import update_latest, update_root_config
 
 update_app = typer.Typer()
@@ -29,7 +30,7 @@ def release_infos(rc_number: int, deploy_number: int):
 
 
 @update_app.command()
-def bump_apv(
+def append_apv(
     number: int,
     network: str = network_arg,
 ):
@@ -37,4 +38,16 @@ def bump_apv(
     Run post deploy script
     """
 
-    update_apv_history(number, network)  # type:ignore
+    append_apv_history(number, network)  # type:ignore
+
+
+@update_app.command()
+def remove_apv(
+    number: int,
+    network: str = network_arg,
+):
+    """
+    Run post deploy script
+    """
+
+    remove_apv_history(number, network)  # type:ignore

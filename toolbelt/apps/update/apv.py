@@ -10,7 +10,7 @@ from toolbelt.types import Network
 logger = structlog.get_logger(__name__)
 
 
-def update_apv_history(number: int, network: Network):
+def append_apv(number: int, network: Network):
     planet = Planet(config.key_address, config.key_passphrase)
     remote_config_manager = APVHistoryManager()
 
@@ -18,6 +18,11 @@ def update_apv_history(number: int, network: Network):
     logger.info("APV Created", version=apv.version, signer=apv.signer)
 
     remote_config_manager.append_apv(apv, network)
+
+
+def remove_apv(number: int, network: Network):
+    remote_config_manager = APVHistoryManager()
+    remote_config_manager.remove_apv(number, network)
 
 
 def generate_apv(planet: Planet, number: int) -> Apv:
