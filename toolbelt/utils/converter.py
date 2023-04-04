@@ -1,6 +1,12 @@
 from typing import Dict
 
-from toolbelt.github.constants import DP_REPO, HEADLESS_REPO, SEED_REPO, WORLD_BOSS_REPO
+from toolbelt.github.constants import (
+    DP_REPO,
+    HEADLESS_REPO,
+    MARKET_SERVICE_REPO,
+    SEED_REPO,
+    WORLD_BOSS_REPO,
+)
 from toolbelt.types import Network
 
 
@@ -11,6 +17,7 @@ def dockerhub2github_repo(dockerhub_repo: str):
         "libplanet-seed": SEED_REPO,
         # "nine-chronicles-bridge-observer": BRIDGE_OBSERVER_REPO,
         "world-boss-service": WORLD_BOSS_REPO,
+        "market-service": MARKET_SERVICE_REPO,
     }
 
     try:
