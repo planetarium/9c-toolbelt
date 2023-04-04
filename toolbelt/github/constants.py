@@ -7,5 +7,6 @@ DP_REPO = "NineChronicles.DataProvider"
 SEED_REPO = "libplanet-seed"
 LIBPLANET_REPO = "libplanet"
 WORLD_BOSS_REPO = "world-boss-service"
+MARKET_SERVICE_REPO = "market-service"
 
 GITHUB_ORG = "planetarium"
