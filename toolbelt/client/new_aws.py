@@ -1,5 +1,5 @@
 import time
-from typing import List
+from typing import List, Any
 
 import boto3
 
@@ -18,7 +18,7 @@ class S3Client:
         contents = response["Body"].read().decode("utf-8")
         return contents
 
-    def upload(self, contents: str, path: str):
+    def upload(self, contents: Any, path: str):
         self.s3.put_object(Bucket=self.bucket_name, Key=path, Body=contents)
 
 
