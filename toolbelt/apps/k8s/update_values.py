@@ -164,7 +164,7 @@ class ValuesFileUpdater:
         config_manager = APVHistoryManager()
         network = infra_dir2network(infra_dir)
 
-        apv_history = config_manager.download_apv_history(network)
+        apv_history = config_manager.get_apv_history(network)
         keys = apv_history.keys()
         sorted_keys = sorted(keys, reverse=True)
 

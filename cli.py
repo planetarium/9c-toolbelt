@@ -13,6 +13,7 @@ if config.env == "production":
 
 app = typer.Typer()
 app.add_typer(prepare_app, name="prepare")
+app.add_typer(release_app, name="release")
 app.add_typer(update_app, name="update")
 app.add_typer(k8s_app, name="k8s")
 

@@ -1,4 +1,3 @@
-import tempfile
 from typing import Dict, Optional, Union
 
 import structlog
