@@ -15,9 +15,7 @@ class PlayerVersionManager(CFHostedFileManager):
     def __init__(self) -> None:
         super().__init__()
 
-    def update_player_version(
-        self, version: int, commit_hash: str, network: Network
-    ):
+    def update_player_version(self, version: int, commit_hash: str, network: Network):
         exists_history_contents = self.get_player_version(network)
         logger.debug("Exists player version file downloaded", network=network)
 

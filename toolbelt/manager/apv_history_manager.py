@@ -61,9 +61,7 @@ class APVHistoryManager(CFHostedFileManager):
         self._create_invalidation_with_retry(file_path, check)
 
     def get_apv_history(self, network: Network):
-        exists_history_contents = self._get_contents(
-            self._get_apv_history_path(network)
-        )
+        exists_history_contents = self._get_contents(self._get_apv_history_path(network))
         return exists_history_contents
 
     def upload_apv_history(self, file_path: str, contents: str):

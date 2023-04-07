@@ -5,11 +5,11 @@ import structlog
 from toolbelt.client import SlackClient
 from toolbelt.config import config
 from toolbelt.constants import BINARY_FILENAME_MAP, RELEASE_BASE_URL
+from toolbelt.manager import PlayerVersionManager
 from toolbelt.types import Network, Platforms
 from toolbelt.utils.url import build_download_url
 
 from .player_copy_machine import PlayerCopyMachine
-from toolbelt.manager import PlayerVersionManager
 
 logger = structlog.get_logger(__name__)
 
