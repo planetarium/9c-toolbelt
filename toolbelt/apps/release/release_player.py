@@ -47,14 +47,7 @@ def release(
         signing=signing,
     )
 
-    download_url = build_download_url(
-        RELEASE_BASE_URL,
-        network,
-        version,
-        "player",
-        commit_hash,
-        BINARY_FILENAME_MAP[platform],
-    )
+    download_url = f"{RELEASE_BASE_URL}/{target_s3_dir}/player/{BINARY_FILENAME_MAP[platform]}"
 
     if config.env == "production":
         config_manager = PlayerVersionManager()
