@@ -31,6 +31,18 @@ inputs:
   AWS_SECRET_ACCESS_KEY:
     description: 'AWS_SECRET_ACCESS_KEY'
     required: true
+  ESIGNER_CREDENTIAL_ID:
+    description: 'ESIGNER_CREDENTIAL_ID'
+    required: true
+  ESIGNER_USERNAME:
+    description: 'ESIGNER_USERNAME'
+    required: true
+  ESIGNER_PASSWORD:
+    description: 'ESIGNER_PASSWORD'
+    required: true
+  ESIGNER_TOTP_SECRET:
+    description: 'ESIGNER_TOTP_SECRET'
+    required: true
 runs:
   using: 'docker'
   env:
@@ -44,4 +56,8 @@ runs:
     KEY_PRIVATE: ${{ inputs.KEY_PRIVATE }}
     AWS_ACCESS_KEY_ID: ${{ inputs.AWS_ACCESS_KEY_ID }}
     AWS_SECRET_ACCESS_KEY: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
+    ESIGNER_CREDENTIAL_ID: ${{ inputs.ESIGNER_CREDENTIAL_ID }}
+    ESIGNER_USERNAME: ${{ inputs.ESIGNER_USERNAME }}
+    ESIGNER_PASSWORD: ${{ inputs.ESIGNER_PASSWORD }}
+    ESIGNER_TOTP_SECRET: ${{ inputs.ESIGNER_TOTP_SECRET }}
   image: 'Dockerfile'

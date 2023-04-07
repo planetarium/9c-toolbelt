@@ -64,7 +64,7 @@ def signing_for_windows(
     target_app: Literal["player", "launcher"],
 ):
     # 1. Extract binary
-    extract_path = extract(dir, binary_path, use7z=False)
+    extract_path = extract(os.path.join(dir, "for_signing"), binary_path, use7z=False)
 
     # 2. Move exe files
     input_dir = os.path.join(dir, "temp_input")
@@ -85,11 +85,12 @@ def signing_for_windows(
     # 3. signing
     output_dir = os.path.join(dir, "temp_output")
     os.mkdir(output_dir)
-    esigner.sign(
+    result = esigner.sign(
         **config.signing_secrets,
         input_dir_path=input_dir,
         output_dir_path=output_dir,
     )
+    logger.debug("Signed", output=result.stdout)
 
     # 4. Re move exe files
     if target_app == "player":
@@ -105,5 +106,4 @@ def signing_for_windows(
 
     # 5. Compress
     result_path = compress(dir, extract_path, binary_path, use7z=False)
-
-    return result_path
+    logger.debug("Signed path", path=result_path)

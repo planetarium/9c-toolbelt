@@ -14,7 +14,6 @@ from toolbelt.client.new_aws import (
 )
 from toolbelt.constants import RELEASE_BASE_URL, RELEASE_BUCKET
 
-
 logger = structlog.get_logger(__name__)
 
 
@@ -25,9 +24,7 @@ class CFHostedFileManager:
 
     def _get_contents(self, file_path: str):
         try:
-            exists_history_contents = json.loads(
-                self.s3_client.read_file(file_path)
-            )
+            exists_history_contents = json.loads(self.s3_client.read_file(file_path))
         except ClientError as e:
             if e.response["Error"]["Code"] == "NoSuchKey":
                 exists_history_contents = {}
@@ -43,12 +40,8 @@ class CFHostedFileManager:
         self, file_path: str, check: Callable[[dict], bool]
     ):
         for _ in range(10):
-            self.cf_client.create_invalidation(
-                [file_path], RELEASE_DISTRIBUTION_ID
-            )
-            self.cf_client.create_invalidation(
-                [file_path], DOWNLOAD_DISTRIBUTION_ID
-            )
+            self.cf_client.create_invalidation([file_path], RELEASE_DISTRIBUTION_ID)
+            self.cf_client.create_invalidation([file_path], DOWNLOAD_DISTRIBUTION_ID)
 
             r = requests.get(f"{RELEASE_BASE_URL}/{file_path}")
             apv_history_contents = r.json()
