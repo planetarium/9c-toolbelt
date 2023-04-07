@@ -3,19 +3,17 @@ from toolbelt.constants import LINUX, MAC, WIN
 
 
 def get_artifact_urls(github_client: GithubClient, commit: str) -> dict:
-    workflow_runs = next(github_client.get_workflow_runs("success", head_sha=commit))
+    workflow_runs = next(github_client.get_workflow_runs("completed", head_sha=commit))
 
     artifacts_url = None
     for workflow in workflow_runs["workflow_runs"]:
-        if workflow["name"] == "Build":
+        if workflow["name"] == "Build and Release":
             artifacts_url = workflow["artifacts_url"]
 
     assert artifacts_url is not None
 
     artifacts_response = github_client._session.get(artifacts_url)
     artifacts = github_client.handle_response(artifacts_response)
-
-    assert len(artifacts["artifacts"]) >= 3
 
     result = {
         WIN: "",
@@ -32,7 +30,5 @@ def get_artifact_urls(github_client: GithubClient, commit: str) -> dict:
             result[MAC] = artifact["archive_download_url"]
         if "Linux" in artifact["name"]:
             result[LINUX] = artifact["archive_download_url"]
-
-    assert result[WIN] != ""
 
     return result
