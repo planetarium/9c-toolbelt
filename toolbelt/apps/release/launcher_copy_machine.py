@@ -9,123 +9,102 @@ from toolbelt.config import config
 from toolbelt.constants import BINARY_FILENAME_MAP, RELEASE_BUCKET
 from toolbelt.github.constants import GITHUB_ORG, PLAYER_REPO
 from toolbelt.github.workflow import get_artifact_urls
-from toolbelt.tools.planet import Apv
-from toolbelt.types import Network
-from toolbelt.utils.url import build_s3_url
-from toolbelt.utils.zip import extract as extract_player
+from toolbelt.utils.zip import extract as extract_launcher
 
 from .copy_machine import CopyMachine
 
 logger = structlog.get_logger(__name__)
 
 
-class PlayerCopyMachine(CopyMachine):
+class LauncherCopyMachine(CopyMachine):
     def __init__(self) -> None:
-        super().__init__("player")
+        super().__init__("launcher")
 
-        self.urls: Optional[dict] = None
-
-    def download(self, target_os: str, commit: str):
-        logger.debug("Download artifact", app="player", input=commit)
+    def download(self, platform: str, commit_hash: str):
+        logger.debug("Download artifact", app="launcher", input=commit_hash)
 
         github_client = GithubClient(
             config.github_token, org=GITHUB_ORG, repo=PLAYER_REPO
         )
 
-        if not self.urls:
-            self.urls = get_artifact_urls(
-                github_client,
-                commit,
-            )
-            logger.debug("Get artifact urls", app="player", urls=self.urls)
+        urls = get_artifact_urls(
+            github_client,
+            commit_hash,
+        )
+        logger.debug("Get artifact urls", app="launcher", urls=urls)
 
         logger.info(
             "Start download artifact",
-            app="player",
-            os=target_os,
-            url=self.urls[target_os],
+            app="launcher",
+            os=platform,
+            url=urls[platform],
         )
 
         downloaded_path = download_from_github(
-            github_client, self.urls[target_os], target_os, self.base_dir
+            github_client, urls[platform], platform, self.base_dir
         )
-        self.dir_map[target_os] = {"downloaded": downloaded_path}
+        self.dir_map["downloaded"] = downloaded_path
 
         logger.info(
             "Finish download",
-            app="player",
-            os=target_os,
+            app="launcher",
+            os=platform,
             path=downloaded_path,
         )
 
     def preprocessing(
         self,
-        target_os: str,
-        *,
-        network: Optional[Network] = None,
-        apv: Optional[Apv] = None,
+        platform: str,
     ):
-        logger.debug("Preprocessing", app="player", dir_status=self.dir_map)
+        logger.debug("Preprocessing", app="launcher", dir_status=self.dir_map)
 
-        logger.debug("Start extract artifact", app="player", os=target_os)
+        logger.debug("Start extract artifact", app="launcher", os=platform)
 
-        extract_path = extract_player(
-            self.base_dir, self.dir_map[target_os]["downloaded"], False
-        )
+        extract_path = extract_launcher(self.base_dir, self.dir_map["downloaded"], False)
 
         logger.info(
             "Finish extract artifact",
-            app="player",
-            os=target_os,
+            app="launcher",
+            os=platform,
             extract_path=extract_path,
         )
 
-        binary_path = os.path.join(extract_path, BINARY_FILENAME_MAP[target_os])
+        binary_path = os.path.join(extract_path, BINARY_FILENAME_MAP[platform])
 
-        self.dir_map[target_os]["binary"] = binary_path
-        self.dir_map[target_os].pop("downloaded")
+        self.dir_map["binary"] = binary_path
+        self.dir_map.pop("downloaded")
 
     def upload(
         self,
-        target_os: str,
-        *,
-        commit: str,
-        s3_prefix: str,
-        network: Network,
-        apv: Apv,
+        platform: str,
+        target_s3_dir: str,
     ):
         logger.debug(
             "Upload",
-            app="player",
+            app="launcher",
         )
 
         release_bucket = S3File(RELEASE_BUCKET)
+        release_path = f"{target_s3_dir}/launcher/{BINARY_FILENAME_MAP[platform]}"
 
-        release_path = s3_prefix + build_s3_url(
-            network,
-            apv.version,
-            "player",
-            commit,
-            BINARY_FILENAME_MAP[target_os],
-        )
         logger.debug(
             "Release Path",
-            app="player",
-            os=target_os,
+            app="launcher",
+            os=platform,
             path=release_path,
         )
 
         release_bucket.upload(
-            self.dir_map[target_os]["binary"],
+            self.dir_map["binary"],
             release_path,
         )
         logger.info(
             "Upload Done",
-            app="player",
-            os=target_os,
+            app="launcher",
+            os=platform,
             release_path=release_path,
         )
-        os.remove(self.dir_map[target_os]["binary"])
+        os.remove(self.dir_map["binary"])
 
 
 def download_from_github(github_client: GithubClient, url: str, filename: str, dir: str):
