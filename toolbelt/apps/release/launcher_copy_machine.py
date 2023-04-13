@@ -7,35 +7,35 @@ from toolbelt.client import GithubClient
 from toolbelt.client.aws import S3File
 from toolbelt.config import config
 from toolbelt.constants import BINARY_FILENAME_MAP, RELEASE_BUCKET
-from toolbelt.github.constants import GITHUB_ORG, PLAYER_REPO
+from toolbelt.github.constants import GITHUB_ORG, LAUNCHER_REPO
 from toolbelt.github.workflow import get_artifact_urls
-from toolbelt.utils.zip import extract as extract_player
+from toolbelt.utils.zip import extract as extract_launcher
 
 from .copy_machine import CopyMachine
 
 logger = structlog.get_logger(__name__)
 
 
-class PlayerCopyMachine(CopyMachine):
+class LauncherCopyMachine(CopyMachine):
     def __init__(self) -> None:
-        super().__init__("player")
+        super().__init__("launcher")
 
     def download(self, platform: str, commit_hash: str):
-        logger.debug("Download artifact", app="player", input=commit_hash)
+        logger.debug("Download artifact", app="launcher", input=commit_hash)
 
         github_client = GithubClient(
-            config.github_token, org=GITHUB_ORG, repo=PLAYER_REPO
+            config.github_token, org=GITHUB_ORG, repo=LAUNCHER_REPO
         )
 
         urls = get_artifact_urls(
             github_client,
             commit_hash,
         )
-        logger.debug("Get artifact urls", app="player", urls=urls)
+        logger.debug("Get artifact urls", app="launcher", urls=urls)
 
         logger.info(
             "Start download artifact",
-            app="player",
+            app="launcher",
             os=platform,
             url=urls[platform],
         )
@@ -47,7 +47,7 @@ class PlayerCopyMachine(CopyMachine):
 
         logger.info(
             "Finish download",
-            app="player",
+            app="launcher",
             os=platform,
             path=downloaded_path,
         )
@@ -56,15 +56,15 @@ class PlayerCopyMachine(CopyMachine):
         self,
         platform: str,
     ):
-        logger.debug("Preprocessing", app="player", dir_status=self.dir_map)
+        logger.debug("Preprocessing", app="launcher", dir_status=self.dir_map)
 
-        logger.debug("Start extract artifact", app="player", os=platform)
+        logger.debug("Start extract artifact", app="launcher", os=platform)
 
-        extract_path = extract_player(self.base_dir, self.dir_map["downloaded"], False)
+        extract_path = extract_launcher(self.base_dir, self.dir_map["downloaded"], False)
 
         logger.info(
             "Finish extract artifact",
-            app="player",
+            app="launcher",
             os=platform,
             extract_path=extract_path,
         )
@@ -81,7 +81,7 @@ class PlayerCopyMachine(CopyMachine):
     ):
         logger.debug(
             "Upload",
-            app="player",
+            app="launcher",
         )
 
         release_bucket = S3File(RELEASE_BUCKET)
@@ -89,7 +89,7 @@ class PlayerCopyMachine(CopyMachine):
 
         logger.debug(
             "Release Path",
-            app="player",
+            app="launcher",
             os=platform,
             path=release_path,
         )
@@ -100,7 +100,7 @@ class PlayerCopyMachine(CopyMachine):
         )
         logger.info(
             "Upload Done",
-            app="player",
+            app="launcher",
             os=platform,
             release_path=release_path,
         )

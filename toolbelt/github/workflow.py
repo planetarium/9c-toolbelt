@@ -24,11 +24,11 @@ def get_artifact_urls(github_client: GithubClient, commit: str) -> dict:
     for artifact in artifacts["artifacts"]:
         assert artifact["expired"] != True
 
-        if "Window" in artifact["name"]:
+        if "Window" in artifact["name"] or "win" in artifact["name"]:
             result[WIN] = artifact["archive_download_url"]
-        if "OSX" in artifact["name"]:
+        if "OSX" in artifact["name"] or "mac" in artifact["name"]:
             result[MAC] = artifact["archive_download_url"]
-        if "Linux" in artifact["name"]:
+        if "Linux" in artifact["name"] or "linux" in artifact["name"]:
             result[LINUX] = artifact["archive_download_url"]
 
     return result
