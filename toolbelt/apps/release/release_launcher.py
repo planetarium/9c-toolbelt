@@ -5,11 +5,9 @@ import structlog
 from toolbelt.client import SlackClient
 from toolbelt.config import config
 from toolbelt.constants import BINARY_FILENAME_MAP, RELEASE_BASE_URL
-from toolbelt.manager import PlayerVersionManager
 from toolbelt.types import Network, Platforms
-from toolbelt.utils.url import build_download_url
 
-from .launcher_copy_machine import PlayerCopyMachine
+from .launcher_copy_machine import LauncherCopyMachine
 
 logger = structlog.get_logger(__name__)
 
@@ -32,7 +30,7 @@ def release(
         slack_channel=slack_channel,
     )
 
-    copy_machine = PlayerCopyMachine()
+    copy_machine = LauncherCopyMachine()
     slack = SlackClient(config.slack_token)
 
     target_s3_dir = create_target_s3_dir(network, version)
@@ -47,11 +45,7 @@ def release(
         signing=signing,
     )
 
-    download_url = f"{RELEASE_BASE_URL}/{target_s3_dir}/launcher/{BINARY_FILENAME_MAP[platform]}"
-
-    if config.env == "production":
-        config_manager = PlayerVersionManager()
-        config_manager.update_launcher_version(version, commit_hash, network)
+    download_url = f"{RELEASE_BASE_URL}/{target_s3_dir}/{BINARY_FILENAME_MAP[platform]}"
 
     if slack_channel:
         slack.send_simple_msg(
@@ -61,4 +55,4 @@ def release(
 
 
 def create_target_s3_dir(network: Network, version: int):
-    return f"{network}/{version}"
+    return f"{network}/launcher/{version}"

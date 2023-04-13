@@ -85,7 +85,7 @@ class PlayerCopyMachine(CopyMachine):
         )
 
         release_bucket = S3File(RELEASE_BUCKET)
-        release_path = f"{target_s3_dir}/player/{BINARY_FILENAME_MAP[platform]}"
+        release_path = f"{target_s3_dir}/{BINARY_FILENAME_MAP[platform]}"
 
         logger.debug(
             "Release Path",

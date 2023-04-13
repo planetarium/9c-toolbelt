@@ -47,7 +47,7 @@ def release(
         signing=signing,
     )
 
-    download_url = f"{RELEASE_BASE_URL}/{target_s3_dir}/player/{BINARY_FILENAME_MAP[platform]}"
+    download_url = f"{RELEASE_BASE_URL}/{target_s3_dir}/{BINARY_FILENAME_MAP[platform]}"
 
     if config.env == "production":
         config_manager = PlayerVersionManager()
@@ -61,4 +61,4 @@ def release(
 
 
 def create_target_s3_dir(network: Network, version: int):
-    return f"{network}/{version}"
+    return f"{network}/player/{version}"

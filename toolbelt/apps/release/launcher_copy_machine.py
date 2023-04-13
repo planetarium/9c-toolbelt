@@ -7,7 +7,7 @@ from toolbelt.client import GithubClient
 from toolbelt.client.aws import S3File
 from toolbelt.config import config
 from toolbelt.constants import BINARY_FILENAME_MAP, RELEASE_BUCKET
-from toolbelt.github.constants import GITHUB_ORG, PLAYER_REPO
+from toolbelt.github.constants import GITHUB_ORG, LAUNCHER_REPO
 from toolbelt.github.workflow import get_artifact_urls
 from toolbelt.utils.zip import extract as extract_launcher
 
@@ -24,7 +24,7 @@ class LauncherCopyMachine(CopyMachine):
         logger.debug("Download artifact", app="launcher", input=commit_hash)
 
         github_client = GithubClient(
-            config.github_token, org=GITHUB_ORG, repo=PLAYER_REPO
+            config.github_token, org=GITHUB_ORG, repo=LAUNCHER_REPO
         )
 
         urls = get_artifact_urls(
@@ -85,7 +85,7 @@ class LauncherCopyMachine(CopyMachine):
         )
 
         release_bucket = S3File(RELEASE_BUCKET)
-        release_path = f"{target_s3_dir}/launcher/{BINARY_FILENAME_MAP[platform]}"
+        release_path = f"{target_s3_dir}/{BINARY_FILENAME_MAP[platform]}"
 
         logger.debug(
             "Release Path",
