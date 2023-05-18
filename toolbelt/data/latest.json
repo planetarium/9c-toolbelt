@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "files": [
+        {
+            "path": "1/Windows.zip",
+            "os": "Windows",
+            "size": 0
+        },
+        {
+            "path": "1/macOS.tar.gz",
+            "os": "macOS",
+            "size": 0
+        },
+        {
+            "path": "1/Linux.tar.gz",
+            "os": "Linux",
+            "size": 0
+        }
+    ],
+    "commit-hash": "",
+    "timestamp": ""
+}
