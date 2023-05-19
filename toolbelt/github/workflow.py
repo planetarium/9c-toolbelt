@@ -7,7 +7,7 @@ def get_artifact_urls(github_client: GithubClient, commit: str) -> dict:
 
     artifacts_url = None
     for workflow in workflow_runs["workflow_runs"]:
-        if workflow["name"] == "Build":
+        if workflow["name"] == "Build and Release":
             artifacts_url = workflow["artifacts_url"]
 
     assert artifacts_url is not None
