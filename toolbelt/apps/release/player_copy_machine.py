@@ -1,5 +1,7 @@
+import json
 import os
 from typing import Optional
+from datetime import datetime
 
 import structlog
 
@@ -9,9 +11,10 @@ from toolbelt.config import config
 from toolbelt.constants import BINARY_FILENAME_MAP, RELEASE_BUCKET
 from toolbelt.github.constants import GITHUB_ORG, PLAYER_REPO
 from toolbelt.github.workflow import get_artifact_urls
-from toolbelt.utils.zip import extract as extract_player
+from toolbelt.utils.zip import extract as extract_player, compress as compress_player
 
 from .copy_machine import CopyMachine
+from .version import create_version_json
 
 logger = structlog.get_logger(__name__)
 
@@ -55,6 +58,8 @@ class PlayerCopyMachine(CopyMachine):
     def preprocessing(
         self,
         platform: str,
+        commit_hash: str,
+        version: int,
     ):
         logger.debug("Preprocessing", app="player", dir_status=self.dir_map)
 
@@ -70,6 +75,19 @@ class PlayerCopyMachine(CopyMachine):
         )
 
         binary_path = os.path.join(extract_path, BINARY_FILENAME_MAP[platform])
+
+        logger.debug("Inject version metadata", app="player", os=platform)
+        extracted = extract_player(extract_path, binary_path, False)
+
+        create_version_json(platform, commit_hash, version, f"{extracted}/version.json")
+
+        compressed = compress_player(binary_path, extracted, binary_path, False)
+        logger.debug(
+            "Finish compressing artifact with version metadata",
+            app="player",
+            os=platform,
+            compress_path=compressed
+        )
 
         self.dir_map["binary"] = binary_path
         self.dir_map.pop("downloaded")

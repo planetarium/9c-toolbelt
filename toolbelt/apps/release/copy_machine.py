@@ -23,6 +23,7 @@ class CopyMachine:
         platform: Platforms,
         commit_hash: str,
         target_s3_dir: str,
+        version: int,
         *,
         dry_run: bool = False,
         signing: bool = False,
@@ -31,7 +32,7 @@ class CopyMachine:
             self.base_dir = tmp_path
 
             self.download(platform, commit_hash)
-            self.preprocessing(platform)
+            self.preprocessing(platform, commit_hash, version)
             if signing:
                 if platform == WIN:
                     signing_for_windows(
@@ -50,6 +51,8 @@ class CopyMachine:
     def preprocessing(
         self,
         platform: str,
+        commit_hash: str,
+        version: int,
     ):
         raise NotImplementedError
 

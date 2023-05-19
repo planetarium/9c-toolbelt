@@ -33,7 +33,7 @@ def release(
     )
 
     copy_machine = PlayerCopyMachine()
-    slack = SlackClient(config.slack_token)
+    # slack = SlackClient(config.slack_token)
 
     target_s3_dir = create_target_s3_dir(network, version)
     logger.debug("Target s3 dir", dir=target_s3_dir)
@@ -43,21 +43,22 @@ def release(
         platform,
         commit_hash,
         target_s3_dir,
+        version,
         dry_run=config.env == "test",
         signing=signing,
     )
 
-    download_url = f"{RELEASE_BASE_URL}/{target_s3_dir}/{BINARY_FILENAME_MAP[platform]}"
+    # download_url = f"{RELEASE_BASE_URL}/{target_s3_dir}/{BINARY_FILENAME_MAP[platform]}"
 
-    if config.env == "production":
-        config_manager = PlayerVersionManager()
-        config_manager.update_player_version(version, commit_hash, network)
+    # if config.env == "production":
+    #     config_manager = PlayerVersionManager()
+    #     config_manager.update_player_version(version, commit_hash, network)
 
-    if slack_channel:
-        slack.send_simple_msg(
-            slack_channel,
-            f"[CI] Prepared player '{platform}' binary - {download_url}",
-        )
+    #if slack_channel:
+    #    slack.send_simple_msg(
+    #        slack_channel,
+    #        f"[CI] Prepared player '{platform}' binary - {download_url}",
+    #    )
 
 
 def create_target_s3_dir(network: Network, version: int):
