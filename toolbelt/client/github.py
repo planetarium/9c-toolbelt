@@ -3,6 +3,7 @@ import time
 from typing import Any, Iterator, Literal, Optional, Tuple
 
 import requests
+import structlog
 
 from toolbelt.client.session import BaseUrlSession
 
@@ -23,6 +24,8 @@ WORKFLOW_STATUS = Literal[
     "waiting",
     "pending",
 ]
+
+logger = structlog.get_logger(__name__)
 
 
 class GithubClient:
