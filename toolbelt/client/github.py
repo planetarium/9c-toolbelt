@@ -6,6 +6,7 @@ import requests
 import structlog
 
 from toolbelt.client.session import BaseUrlSession
+from toolbelt.config import config
 
 GITHUB_BASE_URL = "https://api.github.com"
 WORKFLOW_STATUS = Literal[
@@ -135,6 +136,13 @@ class GithubClient:
 
             # Temp delay
             time.sleep(1)
+
+    def generate_artifacts_url(self, run_id: str):
+        logger.info(config.runtime_url)
+        runtime_session = BaseUrlSession(f"{config.runtime_url}")
+
+        runtime_session.headers.update({"Authorization": f"token {config.runtime_token}"})
+        return runtime_session.get(f"_apis/pipelines/workflows/{run_id}/artifacts")
 
     def update_content(
         self,

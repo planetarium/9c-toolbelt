@@ -23,7 +23,7 @@ class PlayerCopyMachine(CopyMachine):
     def __init__(self) -> None:
         super().__init__("player")
 
-    def download(self, platform: str, commit_hash: str):
+    def download(self, platform: str, commit_hash: str, run_id: Optional[str] = None):
         logger.debug("Download artifact", app="player", input=commit_hash)
 
         github_client = GithubClient(
@@ -33,6 +33,7 @@ class PlayerCopyMachine(CopyMachine):
         urls = get_artifact_urls(
             github_client,
             commit_hash,
+            run_id,
         )
         logger.debug("Get artifact urls", app="player", urls=urls)
 

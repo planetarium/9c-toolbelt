@@ -1,6 +1,6 @@
 import os
 import tempfile
-from typing import Dict, Literal
+from typing import Dict, Literal, Optional
 
 import structlog
 
@@ -24,6 +24,7 @@ class CopyMachine:
         commit_hash: str,
         target_s3_dir: str,
         version: int,
+        run_id: str,
         *,
         dry_run: bool = False,
         signing: bool = False,
@@ -31,7 +32,7 @@ class CopyMachine:
         with tempfile.TemporaryDirectory() as tmp_path:
             self.base_dir = tmp_path
 
-            self.download(platform, commit_hash)
+            self.download(platform, commit_hash, run_id)
             self.preprocessing(platform, commit_hash, version)
             if signing:
                 if platform == WIN:
@@ -45,7 +46,7 @@ class CopyMachine:
             if not dry_run:
                 self.upload(platform, target_s3_dir)
 
-    def download(self, platform: str, commit_hash: str):
+    def download(self, platform: str, commit_hash: str, run_id: Optional[str] = None):
         raise NotImplementedError
 
     def preprocessing(

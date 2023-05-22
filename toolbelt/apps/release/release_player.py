@@ -20,6 +20,7 @@ def release(
     version: int,
     network: Network,
     signing: bool,
+    run_id: Optional[str],
     slack_channel: Optional[str],
 ):
     logger.debug(
@@ -44,6 +45,7 @@ def release(
         commit_hash,
         target_s3_dir,
         version,
+        run_id,
         dry_run=config.env == "test",
         signing=signing,
     )

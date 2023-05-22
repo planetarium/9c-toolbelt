@@ -17,6 +17,7 @@ def player(
     network: str = network_arg,
     platform: str = platforms_arg,
     signing: bool = False,
+    run_id: Optional[str] = None,
     slack_channel: Optional[str] = None,
 ):
     release_player(
@@ -25,6 +26,7 @@ def player(
         version,
         network,  # type:ignore
         signing,
+        run_id,
         slack_channel,
     )
 

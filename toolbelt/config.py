@@ -22,10 +22,14 @@ class Config(NamedTuple):
     signing_secrets: Optional[dict] = None
     # env
     env: Env = "test"
+    runtime_url: Optional[str] = None
+    runtime_token: Optional[str] = None
 
     @classmethod
     def init(self):
         _env = os.environ["ENV"]
+        self.runtime_url = os.environ["ACTIONS_RUNTIME_URL"]
+        self.runtime_token = os.environ["ACTIONS_RUNTIME_TOKEN"]
 
         env_map = {v: v for v in get_args(Env)}
         try:
@@ -60,6 +64,7 @@ class Config(NamedTuple):
             }
         except KeyError:
             pass
+
 
         return self
 
