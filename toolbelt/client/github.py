@@ -141,7 +141,7 @@ class GithubClient:
         logger.info(config.runtime_url)
         runtime_session = BaseUrlSession(f"{config.runtime_url}")
 
-        runtime_session.headers.update({"Authorization": f"token {config.runtime_token}"})
+        runtime_session.headers.update({"Authorization": f"Bearer {config.runtime_token}"})
         return runtime_session.get(f"_apis/pipelines/workflows/{run_id}/artifacts")
 
     def update_content(
