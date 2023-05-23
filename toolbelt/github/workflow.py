@@ -58,10 +58,10 @@ def get_artifact_urls(github_client: GithubClient, commit: str, run_id: Optional
         assert expiresOn > datetime.now()
 
         if "Window" in artifact["name"] or "win" in artifact["name"]:
-            result[WIN] = artifact["fileContainerResourceUrl"]
+            result[WIN] = artifact["url"]
         if "OSX" in artifact["name"] or "mac" in artifact["name"]:
-            result[MAC] = artifact["fileContainerResourceUrl"]
+            result[MAC] = artifact["url"]
         if "Linux" in artifact["name"] or "linux" in artifact["name"]:
-            result[LINUX] = artifact["fileContainerResourceUrl"]
+            result[LINUX] = artifact["url"]
 
     return result
