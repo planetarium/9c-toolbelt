@@ -44,8 +44,7 @@ def get_artifact_urls(github_client: GithubClient, commit: str, run_id: Optional
 
     # artifacts_response = github_client._session.get(artifacts_url)
     # logger.info(artifacts_response)
-    artifacts_url = github_client.generate_artifacts_url(run_id)
-    artifacts_response = github_client.get_artifact(artifacts_url)
+    artifacts_response = github_client.generate_artifacts_url(run_id)
     artifacts = github_client.handle_response(artifacts_response)
 
     result = {
