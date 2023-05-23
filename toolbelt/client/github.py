@@ -139,7 +139,12 @@ class GithubClient:
 
     def generate_artifacts_url(self, run_id: str):
         logger.info(config.runtime_url)
-        return f"{config.runtime_url}_apis/pipelines/workflows/{run_id}/artifacts"
+        runtime_session = BaseUrlSession(config.runtime_url)
+        runtime_session.headers.update({"Authorization": f"Bearer {config.runtime_token}"})
+        return runtime_session.get(f"{config.runtime_url}_apis/pipelines/workflows/{run_id}/artifacts")
+
+    def get_artifact(self, url: str):
+        return requests.get(url, headers={"Authorization": f"Bearer {config.runtime_token}"})
 
     def update_content(
         self,
