@@ -144,7 +144,6 @@ def download_from_github(github_client: GithubClient, url: str, filename: str, d
     path = f"{os.path.join(dir, filename)}.zip"
     # res = github_client._session.get(url)
     res = github_client.get_artifact(url)
-    logger.info(res.json())
     res.raise_for_status()
 
     with open(path, "wb") as f:

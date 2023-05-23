@@ -4,7 +4,7 @@ from typing import Optional
 import structlog
 
 from toolbelt.client.github import GithubClient, WORKFLOW_STATUS
-from toolbelt.constants import LINUX, MAC, WIN
+from toolbelt.constants import LINUX, MAC, WIN, BINARY_FILENAME_MAP
 
 logger = structlog.get_logger(__name__)
 
@@ -47,6 +47,7 @@ def get_artifact_urls(github_client: GithubClient, commit: str, run_id: Optional
     artifacts_response = github_client.generate_artifacts_url(run_id)
     artifacts = github_client.handle_response(artifacts_response)
 
+    logger.info(artifacts)
     result = {
         WIN: "",
         MAC: "",
@@ -58,10 +59,13 @@ def get_artifact_urls(github_client: GithubClient, commit: str, run_id: Optional
         assert expiresOn > datetime.now()
 
         if "Window" in artifact["name"] or "win" in artifact["name"]:
-            result[WIN] = artifact["url"]
+            result[WIN] = f"{artifact['fileContainerResourceUrl']}?itemPath={artifact['name']}/{BINARY_FILENAME_MAP[WIN]}"
         if "OSX" in artifact["name"] or "mac" in artifact["name"]:
-            result[MAC] = artifact["url"]
+            # result[MAC] = artifact["fileContainerResourceUrl"]
+            result[MAC] = f"{artifact['fileContainerResourceUrl']}?itemPath={artifact['name']}/{BINARY_FILENAME_MAP[MAC]}"
         if "Linux" in artifact["name"] or "linux" in artifact["name"]:
-            result[LINUX] = artifact["url"]
+            # result[LINUX] = artifact["fileContainerResourceUrl"]
+            result[LINUX] = f"{artifact['fileContainerResourceUrl']}?itemPath={artifact['name']}/{BINARY_FILENAME_MAP[LINUX]}"
+        logger.info(result)
 
     return result
