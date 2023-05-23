@@ -1,3 +1,5 @@
+from typing import Optional
+
 import structlog
 
 from toolbelt.client.github import GithubClient, WORKFLOW_STATUS
