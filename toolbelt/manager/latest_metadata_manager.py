@@ -35,7 +35,7 @@ class LatestMetadataManager(CFHostedFileManager):
         return self._get_contents(self._get_file_path(network))
 
     def _upload_latest_version(self, file_path: str, contents: dict):
-        self._upload_contents(file_path, json.dumps(contents))
+        self._upload_contents(file_path, json.dumps(contents, indent=4))
 
     def _get_file_path(self, network: Network):
         file_path = f"{network}/player/{LATEST_METADATA_FILE_NAME}"
