@@ -141,7 +141,7 @@ def download_from_github(github_client: GithubClient, url: str, filename: str, d
     :return: A path to the downloaded file.
     """
 
-    path = f"{os.path.join(dir, filename)}.zip"
+    path = f"{os.path.join(dir, url.split('/')[-1])}"
     # res = github_client._session.get(url)
     res = github_client.get_artifact(url)
     res.raise_for_status()
