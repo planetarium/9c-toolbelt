@@ -5,7 +5,7 @@ import typer
 from toolbelt.utils.typer import network_arg, platforms_arg
 
 from .release_player import release as release_player
-from .release_latest_metadata import update as release_latest_metadata
+from .update_latest_metadata import update as update_latest_metadata
 
 release_app = typer.Typer()
 
@@ -14,11 +14,11 @@ release_app = typer.Typer()
 def player(
     commit_hash: str,
     version: int,
-    run_id: str,
     network: str = network_arg,
     platform: str = platforms_arg,
     signing: bool = False,
     slack_channel: Optional[str] = None,
+    run_id: Optional[str] = None,
 ):
     release_player(
         commit_hash,
@@ -37,7 +37,7 @@ def update_latest(
     network: str,
     slack_channel: Optional[str] = None,
 ):
-    release_latest_metadata(
+    update_latest_metadata(
         version,
         commit_hash,
         network,

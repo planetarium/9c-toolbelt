@@ -11,6 +11,10 @@ load_dotenv(".env")
 class Config(NamedTuple):
     # Github token (commit, read)
     github_token: str
+    # Runtime API Url
+    runtime_url: str
+    # Runtime API Token
+    runtime_token: str
     # signer key passphrase
     key_passphrase: Optional[str] = None
     # signer key address
@@ -22,14 +26,12 @@ class Config(NamedTuple):
     signing_secrets: Optional[dict] = None
     # env
     env: Env = "test"
-    runtime_url: Optional[str] = None
-    runtime_token: Optional[str] = None
 
     @classmethod
     def init(self):
         _env = os.environ["ENV"]
-        self.runtime_url = os.environ.get("ACTIONS_RUNTIME_URL", "")
-        self.runtime_token = os.environ.get("ACTIONS_RUNTIME_TOKEN", "")
+        self.runtime_url = os.environ["ACTIONS_RUNTIME_URL"]
+        self.runtime_token = os.environ["ACTIONS_RUNTIME_TOKEN"]
 
         env_map = {v: v for v in get_args(Env)}
         try:

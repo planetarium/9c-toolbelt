@@ -1,6 +1,6 @@
 import os
 import tempfile
-from typing import Dict, Literal, Optional
+from typing import Dict, Literal
 
 import structlog
 

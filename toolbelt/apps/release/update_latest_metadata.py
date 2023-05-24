@@ -16,8 +16,8 @@ def update(
     config_manager = LatestMetadataManager()
     config_manager.update_latest_version(version, commit_hash, network)
 
-    #if slack_channel:
-    #    slack.send_simple_msg(
-    #        slack_channel,
-    #        f"[CI] Prepared '{network}' player binary",
-    #    )
+    if slack_channel:
+        slack.send_simple_msg(
+            slack_channel,
+            f"[CI] Prepared '{network}' player binary",
+        )

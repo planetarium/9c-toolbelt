@@ -43,8 +43,8 @@ class PlayerCopyMachine(CopyMachine):
             url=urls[platform],
         )
 
-        downloaded_path = download(
-            urls[platform], self.base_dir
+        downloaded_path = download_artifact(
+            github_client, urls[platform], self.base_dir
         )
         self.dir_map["downloaded"] = downloaded_path
 
@@ -148,7 +148,8 @@ def download_from_github(github_client: GithubClient, url: str, filename: str, d
 
     return path
 
-def download(github_client: GithubClient, url: str, dir: str):
+
+def download_artifact(github_client: GithubClient, url: str, dir: str):
     """
     Download a file from a URL and save it to a file
 
@@ -156,8 +157,6 @@ def download(github_client: GithubClient, url: str, dir: str):
     :type github_client: GithubClient
     :param url: The URL of the zip file to download
     :type url: str
-    :param filename: The name of the file you want to download
-    :type filename: str
     :param dir: The directory to download the zip file to
     :type dir: str
     :return: A path to the downloaded file.

@@ -10,8 +10,7 @@ ONBOARDING_CONFIG_PATH = "9c-launcher-config.json"
 MAIN_CONFIG_PATH = "9c-launcher-config.json"
 
 RELEASE_BASE_URL = "https://release.nine-chronicles.com"
-#RELEASE_BUCKET = "9c-release.planetariumhq.com"
-RELEASE_BUCKET = "9c-test"
+RELEASE_BUCKET = "9c-release.planetariumhq.com"
 
 WIN = "Windows"
 MAC = "macOS"
