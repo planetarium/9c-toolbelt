@@ -14,19 +14,19 @@ release_app = typer.Typer()
 def player(
     commit_hash: str,
     version: int,
+    run_id: str,
     network: str = network_arg,
     platform: str = platforms_arg,
     signing: bool = False,
-    run_id: Optional[str] = None,
     slack_channel: Optional[str] = None,
 ):
     release_player(
         commit_hash,
         platform,  # type:ignore
         version,
+        run_id,
         network,  # type:ignore
         signing,
-        run_id,
         slack_channel,
     )
 

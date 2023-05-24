@@ -46,7 +46,7 @@ class CopyMachine:
             if not dry_run:
                 self.upload(platform, target_s3_dir)
 
-    def download(self, platform: str, commit_hash: str, run_id: Optional[str] = None):
+    def download(self, platform: str, commit_hash: str, run_id: str):
         raise NotImplementedError
 
     def preprocessing(

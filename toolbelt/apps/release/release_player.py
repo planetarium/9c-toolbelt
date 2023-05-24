@@ -18,9 +18,9 @@ def release(
     commit_hash: str,
     platform: Platforms,
     version: int,
+    run_id: str,
     network: Network,
     signing: bool,
-    run_id: Optional[str],
     slack_channel: Optional[str],
 ):
     logger.debug(
@@ -28,6 +28,7 @@ def release(
         commit_hash=commit_hash,
         platform=platform,
         version=version,
+        run_id=run_id,
         network=network,
         signing=signing,
         slack_channel=slack_channel,

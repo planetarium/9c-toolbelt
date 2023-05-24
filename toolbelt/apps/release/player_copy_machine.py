@@ -23,7 +23,7 @@ class PlayerCopyMachine(CopyMachine):
     def __init__(self) -> None:
         super().__init__("player")
 
-    def download(self, platform: str, commit_hash: str, run_id: Optional[str] = None):
+    def download(self, platform: str, commit_hash: str, run_id: str):
         logger.debug("Download artifact", app="player", input=commit_hash)
 
         github_client = GithubClient(
@@ -32,7 +32,6 @@ class PlayerCopyMachine(CopyMachine):
 
         urls = get_artifact_urls(
             github_client,
-            commit_hash,
             run_id,
         )
         logger.debug("Get artifact urls", app="player", urls=urls)
@@ -44,8 +43,8 @@ class PlayerCopyMachine(CopyMachine):
             url=urls[platform],
         )
 
-        downloaded_path = download_from_github(
-            github_client, urls[platform], platform, self.base_dir
+        downloaded_path = download(
+            urls[platform], self.base_dir
         )
         self.dir_map["downloaded"] = downloaded_path
 
@@ -75,14 +74,12 @@ class PlayerCopyMachine(CopyMachine):
             extract_path=extract_path,
         )
 
-        binary_path = os.path.join(extract_path, BINARY_FILENAME_MAP[platform])
+        binary_path = os.path.join(self.base_dir, BINARY_FILENAME_MAP[platform])
 
         logger.debug("Inject version metadata", app="player", os=platform)
-        extracted = extract_player(extract_path, binary_path, False)
+        create_version_json(platform, commit_hash, version, f"{extract_path}/version.json")
 
-        create_version_json(platform, commit_hash, version, f"{extracted}/version.json")
-
-        compressed = compress_player(binary_path, extracted, binary_path, False)
+        compressed = compress_player(self.base_dir, extract_path, binary_path, False)
         logger.debug(
             "Finish compressing artifact with version metadata",
             app="player",
@@ -141,9 +138,33 @@ def download_from_github(github_client: GithubClient, url: str, filename: str, d
     :return: A path to the downloaded file.
     """
 
+    path = f"{os.path.join(dir, url)}"
+    res = github_client._session.get(url)
+    res.raise_for_status()
+
+    with open(path, "wb") as f:
+        for chunk in res.iter_content(chunk_size=1024):
+            f.write(chunk)
+
+    return path
+
+def download(github_client: GithubClient, url: str, dir: str):
+    """
+    Download a file from a URL and save it to a file
+
+    :param github_client: GithubClient
+    :type github_client: GithubClient
+    :param url: The URL of the zip file to download
+    :type url: str
+    :param filename: The name of the file you want to download
+    :type filename: str
+    :param dir: The directory to download the zip file to
+    :type dir: str
+    :return: A path to the downloaded file.
+    """
+
     path = f"{os.path.join(dir, url.split('/')[-1])}"
-    # res = github_client._session.get(url)
-    res = github_client.get_artifact(url)
+    res = github_client.get_runtime_api(url)
     res.raise_for_status()
 
     with open(path, "wb") as f:

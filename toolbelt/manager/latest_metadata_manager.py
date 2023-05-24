@@ -1,7 +1,5 @@
 import json
 
-import structlog
-
 from toolbelt.types import Network
 
 from .cf_hosted_file_manager import CFHostedFileManager
@@ -39,5 +37,5 @@ class LatestMetadataManager(CFHostedFileManager):
         self._upload_contents(file_path, json.dumps(contents))
 
     def _get_file_path(self, network: Network):
-        file_path = f"{network}/{LATEST_METADATA_FILE_NAME}"
+        file_path = f"{network}/player/{LATEST_METADATA_FILE_NAME}"
         return file_path

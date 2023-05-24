@@ -28,8 +28,8 @@ class Config(NamedTuple):
     @classmethod
     def init(self):
         _env = os.environ["ENV"]
-        self.runtime_url = os.environ["ACTIONS_RUNTIME_URL"]
-        self.runtime_token = os.environ["ACTIONS_RUNTIME_TOKEN"]
+        self.runtime_url = os.environ.get("ACTIONS_RUNTIME_URL", "")
+        self.runtime_token = os.environ.get("ACTIONS_RUNTIME_TOKEN", "")
 
         env_map = {v: v for v in get_args(Env)}
         try:

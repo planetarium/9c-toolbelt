@@ -3,7 +3,6 @@ import time
 from typing import Any, Iterator, Literal, Optional, Tuple
 
 import requests
-import structlog
 
 from toolbelt.client.session import BaseUrlSession
 from toolbelt.config import config
@@ -26,8 +25,6 @@ WORKFLOW_STATUS = Literal[
     "pending",
 ]
 
-logger = structlog.get_logger(__name__)
-
 
 class GithubClient:
     def __init__(self, token: str, *, org: str, repo: str) -> None:
@@ -43,6 +40,9 @@ class GithubClient:
         self._session = BaseUrlSession(GITHUB_BASE_URL)
 
         self._session.headers.update({"Authorization": f"token {token}"})
+
+        self._runtime_session = BaseUrlSession(config.runtime_url)
+        self._runtime_session.headers.update({"Authorization": f"Bearer {config.runtime_token}"})
 
         self.org = org
         self.repo = repo
@@ -138,12 +138,9 @@ class GithubClient:
             time.sleep(1)
 
     def generate_artifacts_url(self, run_id: str):
-        logger.info(config.runtime_url)
-        runtime_session = BaseUrlSession(config.runtime_url)
-        runtime_session.headers.update({"Authorization": f"Bearer {config.runtime_token}"})
-        return runtime_session.get(f"{config.runtime_url}_apis/pipelines/workflows/{run_id}/artifacts")
+        return self._runtime_session.get(f"_apis/pipelines/workflows/{run_id}/artifacts")
 
-    def get_artifact(self, url: str):
+    def get_runtime_api(self, url: str):
         return requests.get(url, headers={"Authorization": f"Bearer {config.runtime_token}"})
 
     def update_content(
