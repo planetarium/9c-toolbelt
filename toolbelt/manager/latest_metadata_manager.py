@@ -23,9 +23,16 @@ class LatestMetadataManager(CFHostedFileManager):
         logger.info("New latest metadata file uploaded", path=file_path)
 
         def check(contents: dict):
+            # try:
+            #     contents[str(version)]
+            #     return True
+            # except KeyError:
+            #     return False
+
             try:
-                contents[str(version)]
-                return True
+                if contents["version"] == version:
+                    return True
+                return False
             except KeyError:
                 return False
 

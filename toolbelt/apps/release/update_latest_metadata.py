@@ -1,7 +1,8 @@
 from typing import Optional
 
 import structlog
-from toolbelt.client import slack
+from toolbelt.client import SlackClient
+from toolbelt.config import config
 
 from toolbelt.manager.latest_metadata_manager import LatestMetadataManager
 
@@ -15,6 +16,8 @@ def update(
 ):
     config_manager = LatestMetadataManager()
     config_manager.update_latest_version(version, commit_hash, network)
+
+    slack = SlackClient(config.slack_token)
 
     if slack_channel:
         slack.send_simple_msg(

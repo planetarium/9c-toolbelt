@@ -24,10 +24,10 @@ def player(
         commit_hash,
         platform,  # type:ignore
         version,
-        run_id,
         network,  # type:ignore
         signing,
         slack_channel,
+        run_id
     )
 
 @release_app.command()

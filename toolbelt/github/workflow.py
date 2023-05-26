@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 from toolbelt.client.github import GithubClient
 from toolbelt.constants import LINUX, MAC, WIN, BINARY_FILENAME_MAP
 
@@ -15,7 +16,7 @@ def get_artifact_urls(github_client: GithubClient, run_id) -> dict:
     }
 
     for artifact in artifacts["value"]:
-        expires_on = datetime.fromisoformat(artifact["expiresOn"].rstrip("Z")[:-1])
+        expires_on = datetime.fromisoformat(artifact["expiresOn"].rstrip("Z")[:23])
         assert expires_on > datetime.now()
 
         if "Window" in artifact["name"] or "win" in artifact["name"]:
