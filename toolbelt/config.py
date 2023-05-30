@@ -11,6 +11,10 @@ load_dotenv(".env")
 class Config(NamedTuple):
     # Github token (commit, read)
     github_token: str
+    # Runtime API Url
+    runtime_url: str
+    # Runtime API Token
+    runtime_token: str
     # signer key passphrase
     key_passphrase: Optional[str] = None
     # signer key address
@@ -26,6 +30,8 @@ class Config(NamedTuple):
     @classmethod
     def init(self):
         _env = os.environ["ENV"]
+        self.runtime_url = os.environ["ACTIONS_RUNTIME_URL"]
+        self.runtime_token = os.environ["ACTIONS_RUNTIME_TOKEN"]
 
         env_map = {v: v for v in get_args(Env)}
         try:
@@ -60,6 +66,7 @@ class Config(NamedTuple):
             }
         except KeyError:
             pass
+
 
         return self
 

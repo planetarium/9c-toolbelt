@@ -1,5 +1,7 @@
+import json
 import os
 from typing import Optional
+from datetime import datetime
 
 import structlog
 
@@ -9,9 +11,10 @@ from toolbelt.config import config
 from toolbelt.constants import BINARY_FILENAME_MAP, RELEASE_BUCKET
 from toolbelt.github.constants import GITHUB_ORG, PLAYER_REPO
 from toolbelt.github.workflow import get_artifact_urls
-from toolbelt.utils.zip import extract as extract_player
+from toolbelt.utils.zip import extract as extract_player, compress as compress_player
 
 from .copy_machine import CopyMachine
+from .version import create_version_json
 
 logger = structlog.get_logger(__name__)
 
@@ -20,7 +23,7 @@ class PlayerCopyMachine(CopyMachine):
     def __init__(self) -> None:
         super().__init__("player")
 
-    def download(self, platform: str, commit_hash: str):
+    def download(self, platform: str, commit_hash: str, run_id: str):
         logger.debug("Download artifact", app="player", input=commit_hash)
 
         github_client = GithubClient(
@@ -29,7 +32,7 @@ class PlayerCopyMachine(CopyMachine):
 
         urls = get_artifact_urls(
             github_client,
-            commit_hash,
+            run_id,
         )
         logger.debug("Get artifact urls", app="player", urls=urls)
 
@@ -40,8 +43,8 @@ class PlayerCopyMachine(CopyMachine):
             url=urls[platform],
         )
 
-        downloaded_path = download_from_github(
-            github_client, urls[platform], platform, self.base_dir
+        downloaded_path = download_artifact(
+            github_client, urls[platform], self.base_dir
         )
         self.dir_map["downloaded"] = downloaded_path
 
@@ -55,6 +58,8 @@ class PlayerCopyMachine(CopyMachine):
     def preprocessing(
         self,
         platform: str,
+        commit_hash: str,
+        version: int,
     ):
         logger.debug("Preprocessing", app="player", dir_status=self.dir_map)
 
@@ -69,7 +74,18 @@ class PlayerCopyMachine(CopyMachine):
             extract_path=extract_path,
         )
 
-        binary_path = os.path.join(extract_path, BINARY_FILENAME_MAP[platform])
+        binary_path = os.path.join(self.base_dir, BINARY_FILENAME_MAP[platform])
+
+        logger.debug("Inject version metadata", app="player", os=platform)
+        create_version_json(platform, commit_hash, version, f"{extract_path}/version.json")
+
+        compressed = compress_player(self.base_dir, extract_path, binary_path, False)
+        logger.debug(
+            "Finish compressing artifact with version metadata",
+            app="player",
+            os=platform,
+            compress_path=compressed
+        )
 
         self.dir_map["binary"] = binary_path
         self.dir_map.pop("downloaded")
@@ -122,8 +138,32 @@ def download_from_github(github_client: GithubClient, url: str, filename: str, d
     :return: A path to the downloaded file.
     """
 
-    path = f"{os.path.join(dir, filename)}.zip"
+    path = f"{os.path.join(dir, url)}"
     res = github_client._session.get(url)
+    res.raise_for_status()
+
+    with open(path, "wb") as f:
+        for chunk in res.iter_content(chunk_size=1024):
+            f.write(chunk)
+
+    return path
+
+
+def download_artifact(github_client: GithubClient, url: str, dir: str):
+    """
+    Download a file from a URL and save it to a file
+
+    :param github_client: GithubClient
+    :type github_client: GithubClient
+    :param url: The URL of the zip file to download
+    :type url: str
+    :param dir: The directory to download the zip file to
+    :type dir: str
+    :return: A path to the downloaded file.
+    """
+
+    path = f"{os.path.join(dir, url.split('/')[-1])}"
+    res = github_client.get_runtime_api(url)
     res.raise_for_status()
 
     with open(path, "wb") as f:

@@ -10,6 +10,7 @@ if config.env == "production":
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
     )
+logging.info("Runtime url", runtime_url=config.runtime_url)
 
 app = typer.Typer()
 app.add_typer(release_app, name="release")

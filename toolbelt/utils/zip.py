@@ -4,6 +4,7 @@ import tarfile
 import zipfile
 
 from py7zr import SevenZipFile
+from zipfile import ZIP_DEFLATED
 
 
 def extract(dir: str, binary_path: str, use7z: bool = True) -> str:
@@ -46,7 +47,7 @@ def compress(dir: str, target_dir: str, result_path: str, use7z: bool = True) ->
                             arcname=filename.removeprefix(target_dir),
                         )
         else:
-            with zipfile.ZipFile(result_path, mode="w") as archive:
+            with zipfile.ZipFile(result_path, mode="w", compression=ZIP_DEFLATED) as archive:
                 for p, _, files in os.walk(target_dir):
                     for f in files:
                         filename = os.path.join(p, f)

@@ -5,6 +5,7 @@ from typing import Any, Iterator, Literal, Optional, Tuple
 import requests
 
 from toolbelt.client.session import BaseUrlSession
+from toolbelt.config import config
 
 GITHUB_BASE_URL = "https://api.github.com"
 WORKFLOW_STATUS = Literal[
@@ -39,6 +40,9 @@ class GithubClient:
         self._session = BaseUrlSession(GITHUB_BASE_URL)
 
         self._session.headers.update({"Authorization": f"token {token}"})
+
+        self._runtime_session = BaseUrlSession(config.runtime_url)
+        self._runtime_session.headers.update({"Authorization": f"Bearer {config.runtime_token}"})
 
         self.org = org
         self.repo = repo
@@ -132,6 +136,12 @@ class GithubClient:
 
             # Temp delay
             time.sleep(1)
+
+    def generate_artifacts_url(self, run_id: str):
+        return self._runtime_session.get(f"_apis/pipelines/workflows/{run_id}/artifacts")
+
+    def get_runtime_api(self, url: str):
+        return requests.get(url, headers={"Authorization": f"Bearer {config.runtime_token}"})
 
     def update_content(
         self,
