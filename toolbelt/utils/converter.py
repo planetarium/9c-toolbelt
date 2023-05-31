@@ -13,6 +13,7 @@ from toolbelt.types import Network
 def dockerhub2github_repo(dockerhub_repo: str):
     dockerhub2github_repo_map = {
         "ninechronicles-headless": HEADLESS_REPO,
+        "lib9c-stateservice": HEADLESS_REPO,
         "ninechronicles-dataprovider": DP_REPO,
         "libplanet-seed": SEED_REPO,
         # "nine-chronicles-bridge-observer": BRIDGE_OBSERVER_REPO,
