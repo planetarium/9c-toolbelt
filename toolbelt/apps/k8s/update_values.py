@@ -174,7 +174,7 @@ class ValuesFileUpdater:
 def extract_image_metadata(image_source: str, delimiter: str = "/") -> ImageMetadata:
     # Example input: ninechronicles-headless/from tag 1
 
-    docker_repo, source = image_source.split(delimiter)
+    docker_repo, source = image_source.split(delimiter, 1)
     _, ref_name, ref_value = source.split(" ")
     return docker_repo, ref_name, ref_value
 
