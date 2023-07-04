@@ -32,30 +32,38 @@ def release(
         slack_channel=slack_channel,
     )
 
-    copy_machine = PlayerCopyMachine()
-    slack = SlackClient(config.slack_token)
+    try:
+        copy_machine = PlayerCopyMachine()
+        slack = SlackClient(config.slack_token)
 
-    target_s3_dir = create_target_s3_dir(network, version)
-    logger.debug("Target s3 dir", dir=target_s3_dir)
+        target_s3_dir = create_target_s3_dir(network, version)
+        logger.debug("Target s3 dir", dir=target_s3_dir)
 
-    logger.debug("Start copy")
-    copy_machine.run(
-        platform,
-        commit_hash,
-        target_s3_dir,
-        version,
-        run_id,
-        dry_run=config.env == "test",
-        signing=signing,
-    )
-
-    download_url = f"{RELEASE_BASE_URL}/{target_s3_dir}/{BINARY_FILENAME_MAP[platform]}"
-
-    if slack_channel:
-        slack.send_simple_msg(
-            slack_channel,
-            f"[CI] Prepared player '{platform}' binary - {download_url}",
+        logger.debug("Start copy")
+        copy_machine.run(
+            platform,
+            commit_hash,
+            target_s3_dir,
+            version,
+            run_id,
+            dry_run=config.env == "test",
+            signing=signing,
         )
+
+        download_url = f"{RELEASE_BASE_URL}/{target_s3_dir}/{BINARY_FILENAME_MAP[platform]}"
+
+        if slack_channel:
+            slack.send_simple_msg(
+                slack_channel,
+                f"[Player] Prepared '{platform}' binary - {download_url}",
+            )
+    except Exception:
+        if slack_channel:
+            slack.send_simple_msg(
+                slack_channel,
+                f"[Player] Failed to release",
+            )
+        raise
 
 
 def create_target_s3_dir(network: Network, version: int):

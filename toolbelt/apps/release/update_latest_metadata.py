@@ -22,5 +22,5 @@ def update(
     if slack_channel:
         slack.send_simple_msg(
             slack_channel,
-            f"[CI] Completed updating latest version metadata for '{network}' network - update will be triggered from now on",
+            f"[Player] Completed updating latest version metadata for '{network}' network - update will be triggered from now on",
         )
