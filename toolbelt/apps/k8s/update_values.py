@@ -188,7 +188,8 @@ def update_image_tag(contents: str, *, repo_to_change: str, tag_to_change: str):
         if isinstance(data, dict):
             for key, value in data.items():
                 if key == "repository" and f"{DOCKERHUB_ORG}/{repo_to_change}" in value:
-                    data["tag"] = tag_to_change
+                    if data.get("tag"):
+                        data["tag"] = tag_to_change
                 else:
                     update_tag_recursively(value)
         elif isinstance(data, list):
@@ -209,10 +210,21 @@ def update_image_tag(contents: str, *, repo_to_change: str, tag_to_change: str):
 
 
 def update_apv(contents: str, apv: str):
+    def update_apv_recursively(data):
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if key == "appProtocolVersion":
+                    data["appProtocolVersion"] = apv
+                else:
+                    update_apv_recursively(value)
+        elif isinstance(data, list):
+            for item in data:
+                update_apv_recursively(item)
+
     yaml = YAML()
     yaml.preserve_quotes = True  # type:ignore
     doc = yaml.load(contents)
-    doc["appProtocolVersion"] = apv
+    update_apv_recursively(doc)
 
     with TemporaryFile(mode="w+") as fp:
         yaml.dump(doc, fp)
