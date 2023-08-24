@@ -31,6 +31,9 @@ inputs:
   AWS_SECRET_ACCESS_KEY:
     description: 'AWS_SECRET_ACCESS_KEY'
     required: true
+  AWS_SESSION_TOKEN:
+    description: 'AWS_SESSION_TOKEN'
+    required: false
   ESIGNER_CREDENTIAL_ID:
     description: 'ESIGNER_CREDENTIAL_ID'
     required: true
@@ -56,6 +59,7 @@ runs:
     KEY_PRIVATE: ${{ inputs.KEY_PRIVATE }}
     AWS_ACCESS_KEY_ID: ${{ inputs.AWS_ACCESS_KEY_ID }}
     AWS_SECRET_ACCESS_KEY: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
+    AWS_SESSION_TOKEN: ${{ inputs.AWS_SESSION_TOKEN }}
     ESIGNER_CREDENTIAL_ID: ${{ inputs.ESIGNER_CREDENTIAL_ID }}
     ESIGNER_USERNAME: ${{ inputs.ESIGNER_USERNAME }}
     ESIGNER_PASSWORD: ${{ inputs.ESIGNER_PASSWORD }}
