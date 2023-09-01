@@ -75,8 +75,8 @@ def signing_for_windows(
     os.mkdir(input_dir)
     if target_app == "player":
         os.rename(
-            os.path.join(extract_path, "9c.exe"),
-            os.path.join(input_dir, "9c.exe"),
+            os.path.join(extract_path, "NineChronicles.exe"),
+            os.path.join(input_dir, "NineChronicles.exe"),
         )
     elif target_app == "launcher":
         os.rename(
@@ -99,8 +99,8 @@ def signing_for_windows(
     # 4. Re move exe files
     if target_app == "player":
         os.rename(
-            os.path.join(output_dir, "9c.exe"),
-            os.path.join(extract_path, "9c.exe"),
+            os.path.join(output_dir, "NineChronicles.exe"),
+            os.path.join(extract_path, "NineChronicles.exe"),
         )
     elif target_app == "launcher":
         os.rename(
