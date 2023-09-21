@@ -202,3 +202,17 @@ class GithubClient:
         response = self.handle_response(r)
 
         return response
+
+    def repository_dispatch(
+            self,
+            *,
+            repo: str,
+            event_type: str,
+    ) -> Any:
+        data = {
+            "event_type": event_type,
+        }
+        r = self._session.post(f"/repos/{self.org}/{repo}/dispatches", json=data)
+        response = self.handle_response(r)
+
+        return response
