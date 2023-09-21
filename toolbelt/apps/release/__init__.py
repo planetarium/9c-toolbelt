@@ -6,6 +6,7 @@ from toolbelt.utils.typer import network_arg, platforms_arg
 
 from .release_player import release as release_player
 from .update_latest_metadata import update as update_latest_metadata
+from .dispatch_action_trigger import dispatch_action_trigger as dispatch
 
 release_app = typer.Typer()
 
@@ -52,4 +53,14 @@ def update_latest(
         commit_hash,
         network,
         slack_channel,
+    )
+
+@release_app.command()
+def action_dispatch(
+    target_repository: str,
+    event_type: Optional[str] = None,
+):
+    dispatch(
+        target_repository,
+        event_type
     )

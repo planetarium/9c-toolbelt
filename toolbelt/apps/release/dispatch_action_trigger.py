@@ -6,6 +6,6 @@ from toolbelt.config import config
 
 logger = structlog.get_logger(__name__)
 
-def dispatch_action_trigger(target_repo: str, event_type: str): 
+def dispatch_action_trigger(target_repository: str, event_type: str): 
     github = GithubClient(config.github_token)
-    github.repository_dispatch(target_repo, event_type)
+    github.repository_dispatch(target_repository, event_type)
