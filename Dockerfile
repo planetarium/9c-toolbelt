@@ -23,10 +23,12 @@ RUN apt-get update && \
     python3-venv && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN curl https://www.ssl.com/download/codesigntool-for-linux-and-macos/ -o /tmp/CodeSignTool.zip && \
-    unzip "/tmp/CodeSignTool.zip" -d "/tmp" && \
-    rm "/tmp/CodeSignTool.zip" && \
-    mv "/tmp" "/codesign" && \
+RUN mkdir "/temp"
+
+RUN curl https://www.ssl.com/download/codesigntool-for-linux-and-macos/ -o /temp/CodeSignTool.zip && \
+    unzip "/temp/CodeSignTool.zip" -d "/temp" && \
+    rm "/temp/CodeSignTool.zip" && \
+    mv "/temp" "/codesign" && \
     chmod +x "/codesign/CodeSignTool.sh" && ln -s "/codesign/CodeSignTool.sh" "/usr/bin/codesign"
 
 ENV ESIGNER_PATH=/codesign
