@@ -41,7 +41,7 @@ class NaverClient:
 
         response = r.json()
 
-        if not response["ok"]:
+        if int(response["requestGlobalCdnPurgeResponse"]['returnCode']) > 0:
             raise ResponseError(f"NaverAPI ResponseError: body: {response}")
 
         return response

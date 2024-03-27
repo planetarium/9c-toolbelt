@@ -16,8 +16,8 @@ class Config(NamedTuple):
     # Runtime API Token
     runtime_token: str
     # ncloud
-    ncloud_access_key: str
-    ncloud_secret_key: str
+    ncloud_access_key: Optional[str] = None
+    ncloud_secret_key: Optional[str] = None
     # signer key passphrase
     key_passphrase: Optional[str] = None
     # signer key address
@@ -33,10 +33,11 @@ class Config(NamedTuple):
     @classmethod
     def init(self):
         _env = os.environ["ENV"]
-        self.runtime_url = os.environ["ACTIONS_RUNTIME_URL"]
-        self.runtime_token = os.environ["ACTIONS_RUNTIME_TOKEN"]
-        self.ncloud_access_key = os.environ["NAVER_CLOUD_ACCESS_KEY"]
-        self.ncloud_secret_key = os.environ["NAVER_CLOUD_SECRET_KEY"]
+        if _env == "production":
+            self.runtime_url = os.environ["ACTIONS_RUNTIME_URL"]
+            self.runtime_token = os.environ["ACTIONS_RUNTIME_TOKEN"]
+            self.ncloud_access_key = os.environ.get("NAVER_CLOUD_ACCESS_KEY", None)
+            self.ncloud_secret_key = os.environ.get("NAVER_CLOUD_SECRET_KEY", None)
 
         env_map = {v: v for v in get_args(Env)}
         try:

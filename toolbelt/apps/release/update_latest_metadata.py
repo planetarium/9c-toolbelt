@@ -19,8 +19,9 @@ def update(
 
     slack = SlackClient(config.slack_token)
 
-    naver = NaverClient(config.ncloud_access_key, config.ncloud_secret_key)
-    naver.purge_cdn()
+    if config.ncloud_access_key is not None and config.ncloud_secret_key is not None:
+        naver = NaverClient(config.ncloud_access_key, config.ncloud_secret_key)
+        naver.purge_cdn()
 
     if slack_channel:
         slack.send_simple_msg(
