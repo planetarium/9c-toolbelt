@@ -25,6 +25,12 @@ inputs:
   KEY_PRIVATE:
     description: 'KEY_PRIVATE'
     required: true
+  NAVER_CLOUD_ACCESS_KEY:
+    description: 'NAVER_CLOUD_ACCESS_KEY'
+    required: true
+  NAVER_CLOUD_SECRET_KEY:
+    description: 'NAVER_CLOUD_SECRET_KEY'
+    required: true
   AWS_ACCESS_KEY_ID:
     description: 'AWS_ACCESS_KEY_ID'
     required: true
@@ -60,6 +66,8 @@ runs:
     AWS_ACCESS_KEY_ID: ${{ inputs.AWS_ACCESS_KEY_ID }}
     AWS_SECRET_ACCESS_KEY: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
     AWS_SESSION_TOKEN: ${{ inputs.AWS_SESSION_TOKEN }}
+    NAVER_CLOUD_ACCESS_KEY: ${{ inputs.NAVER_CLOUD_ACCESS_KEY }}
+    NAVER_CLOUD_SECRET_KEY: ${{ inputs.NAVER_CLOUD_SECRET_KEY }}
     ESIGNER_CREDENTIAL_ID: ${{ inputs.ESIGNER_CREDENTIAL_ID }}
     ESIGNER_USERNAME: ${{ inputs.ESIGNER_USERNAME }}
     ESIGNER_PASSWORD: ${{ inputs.ESIGNER_PASSWORD }}

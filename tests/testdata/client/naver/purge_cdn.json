@@ -1,0 +1,26 @@
+{
+  "requestGlobalCdnPurgeResponse": {
+    "totalRows": 1,
+    "globalCdnPurgeHistoryList": [
+      {
+        "cdnInstanceNo": "23485908",
+        "purgeId": "edcp-UMhoNQvrviSadcmeQM5JtW",
+        "isWholePurge": true,
+        "isWholeDomain": true,
+        "globalCdnServiceDomainList": [
+          {
+            "serviceDomainTypeCode": "DEFAULT",
+            "protocolTypeCode": "HTTPS",
+            "defaultDomainName": "test.gcdn.ntruss.com",
+            "userDomainName": ""
+          }
+        ],
+        "targetFileList": [],
+        "isSuccess": true
+      }
+    ],
+    "requestId": "3df533aa-a17a-4493-94cb-821a7f49221a",
+    "returnCode": "0",
+    "returnMessage": "success"
+  }
+}

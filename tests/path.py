@@ -29,3 +29,6 @@ VALUES_FILE_PATH = os.path.join(K8S_DIR, "sample_values.yaml")
 HEADLESS_VALUES_FILE_PATH = os.path.join(K8S_DIR, "headless_changed.yaml")
 DP_VALUES_FILE_PATH = os.path.join(K8S_DIR, "dp_changed.yaml")
 SEED_VALUES_FILE_PATH = os.path.join(K8S_DIR, "seed_changed.yaml")
+
+NAVER_DIR = os.path.join("client", "naver")
+PURGE_CDN_PATH = os.path.join(NAVER_DIR, "purge_cdn.json")
