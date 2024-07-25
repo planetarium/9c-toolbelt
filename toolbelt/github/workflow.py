@@ -16,7 +16,7 @@ def get_artifact_urls(github_client: GithubClient, run_id) -> dict:
     }
 
     for artifact in artifacts["value"]:
-        expires_on = datetime.fromisoformat(artifact["expiresOn"].rstrip("Z")[:23])
+        expires_on = datetime.strptime(artifact['expiresOn'], "%Y-%m-%dT%H:%M:%S.%fZ")
         assert expires_on > datetime.now()
 
         if "Window" in artifact["name"] or "win" in artifact["name"]:
