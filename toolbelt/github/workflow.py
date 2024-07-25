@@ -1,4 +1,6 @@
 from datetime import datetime
+from datetime import timezone
+from dateutil.parser import parse
 
 
 from toolbelt.client.github import GithubClient
@@ -16,8 +18,8 @@ def get_artifact_urls(github_client: GithubClient, run_id) -> dict:
     }
 
     for artifact in artifacts["value"]:
-        expires_on = datetime.fromisoformat(artifact["expiresOn"].rstrip("Z")[:23])
-        assert expires_on > datetime.now()
+        expires_on = parse(artifact['expiresOn'].rstrip("Z"))
+        assert expires_on > datetime.now(tz=timezone.utc)
 
         if "Window" in artifact["name"] or "win" in artifact["name"]:
             result[WIN] = f"{artifact['fileContainerResourceUrl']}?itemPath={artifact['name']}/{BINARY_FILENAME_MAP[WIN]}"

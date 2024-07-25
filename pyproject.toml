@@ -15,7 +15,8 @@ dependencies = [
     "requests ==2.26.0",
     "typer[all] ~=0.6.1",
     "python-dotenv ~=0.19",
-    "ruamel.yaml ~=0.17.21"
+    "ruamel.yaml ~=0.17.21",
+    "python-dateutil ==2.9.0"
 ]
 dynamic = ["version", "description"]
 
