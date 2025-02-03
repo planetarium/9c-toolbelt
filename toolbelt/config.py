@@ -34,8 +34,6 @@ class Config(NamedTuple):
     def init(self):
         _env = os.environ["ENV"]
         if _env == "production":
-            self.runtime_url = os.environ["ACTIONS_RUNTIME_URL"]
-            self.runtime_token = os.environ["ACTIONS_RUNTIME_TOKEN"]
             self.ncloud_access_key = os.environ.get("NAVER_CLOUD_ACCESS_KEY", None)
             self.ncloud_secret_key = os.environ.get("NAVER_CLOUD_SECRET_KEY", None)
 
