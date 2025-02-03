@@ -11,7 +11,7 @@ from toolbelt.config import config
 from toolbelt.constants import BINARY_FILENAME_MAP, RELEASE_BUCKET
 from toolbelt.github.constants import GITHUB_ORG, PLAYER_REPO
 from toolbelt.github.workflow import get_artifact_urls
-from toolbelt.utils.zip import extract as extract_player, compress as compress_player
+from toolbelt.utils.zip import extract as extract_player, extract_zipped_artifact, compress as compress_player
 
 from .copy_machine import CopyMachine
 from .version import create_version_json
@@ -44,7 +44,7 @@ class PlayerCopyMachine(CopyMachine):
         )
 
         downloaded_path = download_from_github(
-            github_client, urls[platform], f"{platform}.zip", dir=self.base_dir
+            github_client, urls[platform], platform, dir=self.base_dir
         )
         self.dir_map["downloaded"] = downloaded_path
 
@@ -123,7 +123,7 @@ class PlayerCopyMachine(CopyMachine):
         os.remove(self.dir_map["binary"])
 
 
-def download_from_github(github_client: GithubClient, url: str, filename: str, dir: str):
+def download_from_github(github_client: GithubClient, url: str, platform: str, dir: str):
     """
     Download a file from a URL and save it to a file
 
@@ -138,6 +138,7 @@ def download_from_github(github_client: GithubClient, url: str, filename: str, d
     :return: A path to the downloaded file.
     """
 
+    filename = f"{platform}.zip"
     path = f"{os.path.join(dir, filename)}"
     res = github_client._session.get(url)
     res.raise_for_status()
@@ -146,7 +147,8 @@ def download_from_github(github_client: GithubClient, url: str, filename: str, d
         for chunk in res.iter_content(chunk_size=1024):
             f.write(chunk)
 
-    return path
+    extracted = extract_zipped_artifact(dir, filename)
+    return extracted
 
 
 def download_artifact(github_client: GithubClient, url: str, dir: str):
