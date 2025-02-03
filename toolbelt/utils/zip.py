@@ -27,6 +27,25 @@ def extract(dir: str, binary_path: str, use7z: bool = True) -> str:
     return dst_path
 
 
+def extract_zipped_artifact(dir: str, file_name: str) -> str:
+    os_name, extension = file_name.split(".", 1)
+    path = os.path.join(dir, file_name)
+    dst_path = os.path.join(dir, os_name)
+    with zipfile.ZipFile(path, mode="r") as archive:
+        archive.extractall(path=dst_path)
+    if os_name == "Windows":
+        result_file = f"{os_name}.zip"
+    else:
+        result_file = f"{os_name}.tar.gz"
+    result_path = os.path.join(os.path.dirname(dst_path), result_file)
+    os.remove(path)
+    os.rename(
+        os.path.join(dst_path, result_file),
+        result_path
+    )
+    return result_path
+
+
 def compress(dir: str, target_dir: str, result_path: str, use7z: bool = True) -> str:
     file_name = os.path.basename(result_path)
     os_name, extension = file_name.split(".", 1)
