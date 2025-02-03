@@ -17,14 +17,15 @@ def get_artifact_urls(github_client: GithubClient, run_id) -> dict:
         LINUX: "",
     }
 
-    for artifact in artifacts["artifacts"]:
-        assert not artifact["expired"]
+    for artifact in artifacts["value"]:
+        expires_on = parse(artifact['expiresOn'])
+        assert expires_on > datetime.now(tz=timezone.utc)
 
         if "Window" in artifact["name"] or "win" in artifact["name"]:
-            result[WIN] = artifact["archive_download_url"]
+            result[WIN] = f"{artifact['fileContainerResourceUrl']}?itemPath={artifact['name']}/{BINARY_FILENAME_MAP[WIN]}"
         if "OSX" in artifact["name"] or "mac" in artifact["name"]:
-            result[MAC] = artifact["archive_download_url"]
+            result[MAC] = f"{artifact['fileContainerResourceUrl']}?itemPath={artifact['name']}/{BINARY_FILENAME_MAP[MAC]}"
         if "Linux" in artifact["name"] or "linux" in artifact["name"]:
-            result[LINUX] = artifact["archive_download_url"]
+            result[LINUX] = f"{artifact['fileContainerResourceUrl']}?itemPath={artifact['name']}/{BINARY_FILENAME_MAP[LINUX]}"
 
     return result

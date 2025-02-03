@@ -39,7 +39,7 @@ class GithubClient:
         self._token = token
         self._session = BaseUrlSession(GITHUB_BASE_URL)
 
-        self._session.headers.update({"Authorization": f"Bearer {token}"})
+        self._session.headers.update({"Authorization": f"token {token}"})
 
         self._runtime_session = BaseUrlSession(config.runtime_url)
         self._runtime_session.headers.update({"Authorization": f"Bearer {config.runtime_token}"})
@@ -138,7 +138,7 @@ class GithubClient:
             time.sleep(1)
 
     def generate_artifacts_url(self, run_id: str):
-        return self._session.get(f"/repos/{self.org}/{self.repo}/actions/runs/{run_id}/artifacts")
+        return self._runtime_session.get(f"_apis/pipelines/workflows/{run_id}/artifacts")
 
     def get_runtime_api(self, url: str):
         return requests.get(url, headers={"Authorization": f"Bearer {config.runtime_token}"})
