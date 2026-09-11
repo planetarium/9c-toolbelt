@@ -16,19 +16,29 @@ COPY . /toolbelt
 #        E: Failed to fetch .../bullseye-security/pool/updates/main/x/xz-utils/... 404 Not Found
 #   1)만 고치면(만료 검사 끄기) 2)에서 다시 죽는다. 실제로 그렇게 재실패했다.
 #
-#   그래서 소스를 Debian 공식 영구 아카이브로 돌린다. bullseye main 에 이 Dockerfile 이
-#   필요로 하는 9개 패키지가 전부 있음을 확인했다. security/updates 는 아카이브에 없고
-#   (모든 경로 404) 어차피 동결된 suite 라 뺀다. 아카이브 Release 도 만료 상태이므로
-#   Check-Valid-Until 은 계속 꺼둔다.
+#   3) archive.debian.org 의 main 만 쓰면 이번엔 버전이 어긋난다 — 베이스 이미지엔 security
+#      업데이트가 반영된 런타임이 이미 깔려 있는데 main 에는 구버전 -dev 밖에 없다:
+#        libexpat1-dev : Depends: libexpat1 (= 2.2.10-2+deb11u5) but 2.2.10-2+deb11u6 is to be installed
+#      bullseye-security 는 archive.debian.org 에 아직 없다(경로 전부 404).
 #
-#   런타임은 마지막 성공 빌드(NineChronicles release/480.0.1, 2026-08-31)와 동일하게
-#   유지된다 — Java 11 / Python 3.9 / .NET 6. 이 이미지는 CodeSignTool 로 런처 바이너리에
-#   서명하는 경로라 런타임 교체엔 검증이 필요해서다.
+#   그래서 snapshot.debian.org 의 **풀 제거 이전 시점**을 고정해 쓴다. main 과 security 를
+#   같은 타임스탬프로 묶어야 위 skew 가 없다. 타임스탬프 고정이라 빌드가 재현 가능해지는
+#   부수 효과도 있다. 아카이브 Release 는 만료 상태이므로 Check-Valid-Until 은 꺼둔다.
+#
+#   런타임은 마지막 성공 빌드(NineChronicles release/480.0.1, 2026-08-31)와 동일하다 —
+#   Java 11 / Python 3.9 / .NET 6. 이 이미지는 CodeSignTool 로 런처 바이너리에 서명하는
+#   경로라 런타임을 바꾸지 않는 쪽을 골랐다.
+#   amd64 로컬 빌드로 검증함: openjdk 11.0.32+9-2~deb11u1, Python 3.9.2.
 #
 #   근본 해결은 EOL 베이스 교체다. `6.0-bookworm-slim` 이 존재하지만 openjdk-11 이 없어
 #   17 로 가야 하고, Python 3.9→3.11 이 되면서 `PyYAML ==6.0` 정확 핀이 3.11 에서
 #   빌드가 깨진다(6.0.1 에서 수정). 베이스·JDK·의존성을 함께 올리는 작업이라 별건으로 분리.
-RUN printf 'deb http://archive.debian.org/debian bullseye main\n' > /etc/apt/sources.list && \
+ARG DEBIAN_SNAPSHOT=20260815T000000Z
+RUN printf '%s\n' \
+      "deb http://snapshot.debian.org/archive/debian/${DEBIAN_SNAPSHOT}/ bullseye main" \
+      "deb http://snapshot.debian.org/archive/debian-security/${DEBIAN_SNAPSHOT}/ bullseye-security main" \
+      "deb http://snapshot.debian.org/archive/debian/${DEBIAN_SNAPSHOT}/ bullseye-updates main" \
+      > /etc/apt/sources.list && \
     apt-get -o Acquire::Check-Valid-Until=false update && \
     apt-get install -y \
     curl \
