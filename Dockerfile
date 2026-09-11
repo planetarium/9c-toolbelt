@@ -39,8 +39,15 @@ RUN printf '%s\n' \
       "deb http://snapshot.debian.org/archive/debian-security/${DEBIAN_SNAPSHOT}/ bullseye-security main" \
       "deb http://snapshot.debian.org/archive/debian/${DEBIAN_SNAPSHOT}/ bullseye-updates main" \
       > /etc/apt/sources.list && \
+#   4) 베이스 이미지의 CA 번들이 낡아 ssl.com 검증에 실패한다(아래 CodeSignTool 단계):
+#        curl: (60) SSL certificate problem: self signed certificate in certificate chain
+#      ssl.com 이 체인을 교체했는데 동결된 bullseye 베이스가 새 루트를 모른다.
+#      apt 를 전혀 건드리지 않은 순정 `dotnet/sdk:6.0` 에서도 재현되므로 이 레이어와
+#      무관한 외부 변화다(호스트에서는 같은 URL 이 200). 그래서 ca-certificates 를
+#      명시적으로 올린다 — 스냅샷의 20250419~deb12u1~deb11u1 이면 200 으로 통과한다.
     apt-get -o Acquire::Check-Valid-Until=false update && \
     apt-get install -y \
+    ca-certificates \
     curl \
     wget \
     gcc \
